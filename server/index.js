@@ -14,8 +14,8 @@ const jwtHelpers = require('./middleware/jwt.js');
 
 //Logger // TODO: Implementar logger
 
-const mainHandlers= require(path.join(__dirname, 'modules/main/handlers.js'));
-const qrRouter = require(path.join(__dirname, 'modules/qrReader/router.js'));
+const mainHandlers= require('./modules/main/handlers.js'); //TODO poiner los paths normal
+const qrRouter = require('./modules/qrReader/router.js');
 
 
 globalRouter.use(express.json());
@@ -23,7 +23,7 @@ globalRouter.use(express.urlencoded({ extended: false }));
 globalRouter.use(cookieParser());
 
 // Serving static files //TODO check
-globalRouter.use(express.static(path.join(__dirname, '../client/inicio/src')));
+globalRouter.use(express.static('../client/inicio/src'));
 
 
 globalRouter.get('/login', mainHandlers.getLogin);
