@@ -1,11 +1,12 @@
 const debug = require('debug')('&:QR READER: handlers')
+const services = require('./services'); 
 
 
 const entradaEvento = async (req, res, next) => {
     try {
-        const {qr_data} = req.body
-        console.log(qr_data,'dataaa')
-        res.send({status:'approved'});
+        const idUser = req.params.idUser
+        const mayComeIn = await services.entradaEvento(idUser)
+        res.send({status: mayComeIn});
     } catch (e) {
         debug('Error in handlers/entradaEvento ' + e);
         next(e); 
@@ -15,9 +16,9 @@ const entradaEvento = async (req, res, next) => {
 
 const salidaEvento = async (req, res, next) => {
     try {
-        const {qr_data} = req.body
-        console.log(qr_data,'dataaa')
-        res.send({status:'denied'});
+        const idUser = req.params.idUser
+        const mayComeOut = await services.salidaEvento(idUser)
+        res.send({status: mayComeOut});
     } catch (e) {
         debug('Error in handlers/salidaEvento ' + e);
         next(e); 
