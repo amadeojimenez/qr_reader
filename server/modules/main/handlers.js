@@ -1,7 +1,8 @@
 const debug = require('debug')('&:MAIN: handlers')
+const path = require('path');
 
 
-const getReader = async (req, res, next) => {
+const login = async (req, res, next) => {
     try {
         const {qr_data} = req.body
         console.log(qr_data,'dataaa')
@@ -13,10 +14,10 @@ const getReader = async (req, res, next) => {
 };
 
 
-const login = async (req, res, next) => {
+const getReader = async (req, res, next) => {
     try {
         const file = 'inicio.html';
-        res.sendFile(file, { root: path.resolve('client') }, function (err) {
+        res.sendFile(file, { root: path.resolve('../client/inicio') }, function (err) {
             if (err) {
                 console.log(err);
             }

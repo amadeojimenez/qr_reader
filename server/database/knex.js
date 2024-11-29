@@ -3,8 +3,6 @@ const fs = require('fs');
 const dbCredentials = require('./config/config.js');
 
 
-console.log(dbCredentials)
-
 const knex = require('knex')(
     {
         client: 'pg',
