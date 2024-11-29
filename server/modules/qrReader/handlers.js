@@ -4,7 +4,7 @@ const services = require('./services');
 
 const entradaEvento = async (req, res, next) => {
     try {
-        const idUser = req.params.idUser
+        const idUser = req.params.id
         const mayComeIn = await services.entradaEvento(idUser)
         res.send({status: mayComeIn});
     } catch (e) {
@@ -16,7 +16,7 @@ const entradaEvento = async (req, res, next) => {
 
 const salidaEvento = async (req, res, next) => {
     try {
-        const idUser = req.params.idUser
+        const idUser = req.params.id
         const mayComeOut = await services.salidaEvento(idUser)
         res.send({status: mayComeOut});
     } catch (e) {

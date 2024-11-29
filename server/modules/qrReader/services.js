@@ -55,10 +55,10 @@ const salidaEvento = async (idUser) => {
         throw e;
     }
 }
-entradaEvento(1)
-salidaEvento(1)
-entradaEvento(2)
-entradaEvento(2)
+entradaEvento(300)
+salidaEvento(300)
+entradaEvento(1200)
+entradaEvento(1200)
 
 module.exports = {
     entradaEvento,

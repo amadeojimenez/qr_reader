@@ -6,10 +6,10 @@ const qrRouter = express.Router();
 
 
 qrRouter.post('/in/:id', qrReaderHandlers.entradaEvento);
-// responses: ok, was_out, already_in, invalid_id
+// status: ok, was_out, already_in, invalid_id
 
 qrRouter.post('/out/:id', qrReaderHandlers.salidaEvento);
-// responses: not_in, was_in, already_out, invalid_id
+// status: not_in, was_in, already_out, invalid_id
 
 		
 module.exports = qrRouter;

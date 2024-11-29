@@ -28,7 +28,7 @@ $(document).ready(function () {
 
     // Function to send QR data to the backend
     function sendQRCodeData(qrData) {
-        const url = scanMode === 'entrada' ? '/qrReader/entrada' : '/qrReader/salida';
+        const url = scanMode === 'entrada' ? '/qrReader/in/1300' : '/qrReader/out/1300';
 
         return $.ajax({
             url: url,
@@ -53,7 +53,7 @@ $(document).ready(function () {
 
         if(scanMode == 'entrada'){
 
-            if (status === 'approved') {
+            if (status === 'ok') {
                 scanAreaElement.style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
                 statusElement.textContent = 'QR válido!';
                 audioValidated.play();
@@ -67,11 +67,11 @@ $(document).ready(function () {
                 botonPasar.style.display = 'none';
             };
 
-            } else if (status === 'denied') {
+            } else if (status === 'already_in') {
                 scanAreaElement.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
                 statusElement.textContent = 'QR inválido o ya usado!';
                 audioUnvalidated.play()
-                
+
             } else {
                 statusElement.textContent = 'Error procesando QR!';
             }
@@ -119,7 +119,7 @@ $(document).ready(function () {
     // Initialize the QR Scanner
     const qrScanner = new QrScanner(
         videoElement,
-        (result) => {
+        result => {
             if (isScanning) {
                 console.log('Decoded QR Code:', result);
                 isScanning = false; // Disable scanning until response is received
@@ -131,8 +131,9 @@ $(document).ready(function () {
                         handleResponse(response.status);
                     });
             }
-        }
-    );
+        });
+
+
 
     function startQrScanner() {
         qrScanner
