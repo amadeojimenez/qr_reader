@@ -1,13 +1,15 @@
 const express = require('express');
-const qrReaderHandlers = require('@qrReader/handlers');
+const qrReaderHandlers = require('./handlers.js');
 
 const qrRouter = express.Router();
 
 
 
-qrRouter.post('/entrada', qrReaderHandlers.entradaEvento);
+qrRouter.post('/in/:id', qrReaderHandlers.entradaEvento);
+// responses: ok, was_out, already_in, invalid_id
 
-qrRouter.post('/salida', qrReaderHandlers.salidaEvento);
+qrRouter.post('/out/:id', qrReaderHandlers.salidaEvento);
+// responses: not_in, was_in, already_out, invalid_id
 
 		
 module.exports = qrRouter;
