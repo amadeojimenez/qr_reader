@@ -2,7 +2,9 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const globalRouter = express();
+const cookieParser = require('cookie-parser');
 const debug = require('debug')('&:INDEX JS');
+const jwtHelpers = require('./middleware/jwt.js');
 // const cors = require('cors');
 // const helmet = require('helmet'); //TODO: Implementar helmet
 
@@ -18,19 +20,22 @@ const qrRouter = require(path.join(__dirname, 'modules/qrReader/router.js'));
 
 globalRouter.use(express.json());
 globalRouter.use(express.urlencoded({ extended: false }));
+globalRouter.use(cookieParser());
 
 // Serving static files //TODO check
 globalRouter.use(express.static(path.join(__dirname, '../client/inicio/src')));
 
 
+globalRouter.get('/login', mainHandlers.getLogin);
+globalRouter.post('/login', jwtHelpers.login);
 
-
-//---------------------- Other routers--------------------------
+globalRouter.use((req, res, next) => {
+    console.log('Request URL:', req.originalUrl);
+    next();
+});
+globalRouter.use(jwtHelpers.isUserAuthenticated);
 
 globalRouter.get('/', mainHandlers.getReader);
-globalRouter.put('/login', mainHandlers.login);
-
-
 globalRouter.use('/qrReader', qrRouter);
 
 
