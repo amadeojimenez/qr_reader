@@ -48,7 +48,7 @@ video {
   background-color: rgba(138, 138, 138, 0.084); 
 
   --s: 50px; /* size of the corners */
-  border: 9px solid rgba(0, 128, 0, 0.649); 
+  border: 9px solid #198754; 
   mask: 
     conic-gradient(#000 0 0) content-box,
     conic-gradient(at var(--s) var(--s),#0000 75%,#000 0) 
@@ -67,6 +67,8 @@ video {
   border-radius: 10px;
   font-size: clamp(12px, 2vw, 16px); /* Min: 12px, Max: 18px */
   z-index: 3;
+  animation: fade-in-out 1s infinite ease-in-out; /* Animation */
+  
 }
 
 
@@ -113,7 +115,7 @@ video {
 #toggle-mode-button i {
   color: #fff;
 }
-
+/* 
 #pasar-button {
   position: absolute;
   bottom: 20px;
@@ -136,7 +138,7 @@ video {
 }
 #pasar-button i {
   color: #fff;
-}
+} */
 #unblock-button {
   position: absolute;
   bottom: 20px;
@@ -146,10 +148,10 @@ video {
   transform: translateX(-50%);
   padding: 10px 20px;
   font-size: 1rem;
-  background-color: #3981cf;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
+  /* background-color: #3981cf; */
+  /* color: #fff; */
+  /* border: none; */
+  /* border-radius: 50%; */
   cursor: pointer;
   z-index: 20;
   align-items: center;
@@ -157,4 +159,40 @@ video {
   width: 200px;
   height: 50px;
 }
+
+/* SLEEP MODE */
+#sleep-icon {
+  position: absolute;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  font-size: 6rem; 
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0; 
+  transition: opacity 0.3s ease;
+  z-index: 2; 
+}
+
+/*CUando sleep mode está activo */
+body.sleep-mode #sleep-icon {
+  opacity: 1; 
+}
+
+/* Cambiamos el styling del unblock button en sleep mode */
+body.sleep-mode #unblock-button {
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(200, 200, 200, 1);
+  color: black; 
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 3; 
+  
+}
+
 

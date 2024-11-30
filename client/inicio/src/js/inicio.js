@@ -7,12 +7,20 @@ $(document).ready(function () {
     const modeIndicator = document.getElementById('mode-indicator');
     const toggleModeButton = document.getElementById('toggle-mode-button');
     const unblockButton = document.getElementById('unblock-button');
-    const botonPasar = document.getElementById('pasar-button');
+    // const botonPasar = document.getElementById('pasar-button');
+    const sleepIcon = document.getElementById('sleep-icon');
     let lastReadQR = '';
+    let inactivityTimeout;
+    let delayQRTimeout;
+    let sameQRTimeout;
+    let isSleepMode = false;
 
-    function setLastReadQR(qr) { //TODO checkear que esto tiene una pirueta ahi abajo
+    function setLastReadQR(qr) {//TODO checkear que esto tiene una pirueta ahi abajo
         lastReadQR = qr;
-        setTimeout(() => {
+        resetInactivityTimer(); // Resetea el timer de inactividad para sleep mode
+        clearTimeout(delayQRTimeout) // resetea el timer para el delay generico entre lecturas
+        clearTimeout(sameQRTimeout) //resetea el timer del delay por mismo QR
+        sameQRTimeout = setTimeout(() => {
             if (lastReadQR === qr) {
                 lastReadQR = '';
             }
@@ -24,9 +32,12 @@ $(document).ready(function () {
     }
 
     unblockButton.addEventListener('click', function () {
-        unblockScanner();
+        if (isSleepMode) {
+            exitSleepMode();
+        } else {
+            unblockScanner();
+        }
     });
-
     let isScanning = true;
     let scanMode = 'entrada'; // Default mode
 
@@ -60,8 +71,8 @@ $(document).ready(function () {
         isScanning = false;
     }
 
-    function unblockScanner(message = 'Apunta la cámara hacia el QR.') {
-        resetScanner(message)
+    function unblockScanner() {
+        resetScanner()
         unblockButton.style.display = 'none';
     }
 
@@ -77,6 +88,50 @@ $(document).ready(function () {
     // };
 
 
+    // Sleep mode functions
+    function activateSleepMode() {
+        isSleepMode = true;
+        videoElement.style.display = 'none';
+        scanAreaElement.style.display = 'none';
+        statusElement.style.display = 'none'; 
+        modeIndicator.style.display = 'none';
+        toggleModeButton.style.display = 'none'; 
+        sleepIcon.style.display = 'block'; 
+        unblockButton.style.display = 'flex'; 
+        unblockButton.textContent = 'Escanear'; 
+
+        document.body.classList.add('sleep-mode');
+    }
+
+    function exitSleepMode() {
+        isSleepMode = false;
+        videoElement.style.display = 'block';
+        scanAreaElement.style.display = 'block'; 
+        statusElement.style.display = 'block'; 
+        modeIndicator.style.display = 'block'; 
+        toggleModeButton.style.display = 'flex'; 
+        sleepIcon.style.display = 'none'; 
+        unblockButton.style.display = 'none'; 
+        unblockButton.textContent = 'Seguir'; 
+
+        document.body.classList.remove('sleep-mode');
+
+        resetInactivityTimer();
+
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimeout);
+        if (!isSleepMode) {
+            inactivityTimeout = setTimeout(activateSleepMode, 18000); // 3 minutos :180000 
+        }
+    }
+
+
+
+
+    resetInactivityTimer();
+
     
     adjustScanArea();
     // Function to send QR data to the backend
@@ -89,7 +144,7 @@ $(document).ready(function () {
             type: 'POST',
             // data: { qr_data: qrData },
             success: function (response) {
-                alert(response.status, 'STATUS');
+                // alert(response.status, 'STATUS');
                 return response; // { status: "approved" | "denied" }
             },
             error: function (err) {
@@ -108,7 +163,7 @@ $(document).ready(function () {
                 case 'ok':
                     blockScanner('Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
                     audioValidated.play();
-                    setTimeout(() => {
+                    delayQRTimeout = setTimeout(() => {
                         unblockScanner();
                     }, 2000);
                     // botonPasar.style.display = 'flex'; // TODO yo quitaria este y unficaria todo en un solo boton (el de abajo)
@@ -207,8 +262,8 @@ $(document).ready(function () {
 
         // Update the UI based on the new mode
         modeIndicator.textContent = scanMode.toUpperCase();
-        modeIndicator.className = scanMode; // Change background color
-        scanAreaElement.style.borderColor = scanMode === 'entrada' ? 'rgba(0, 128, 0, 0.649)' : 'rgba(0, 0, 255,  0.649)';
+        modeIndicator.className = scanMode === 'entrada' ? "badge bg-success mt-3 fs-5" : "badge bg-primary mt-3 fs-5"; // Change background color
+        scanAreaElement.style.borderColor = scanMode === 'entrada' ? '#198754' : '#0d6efd';
 
         toggleModeButton.innerHTML = scanMode === 'entrada'
             ? '<i class="fa-solid fa-right-from-bracket"></i>'

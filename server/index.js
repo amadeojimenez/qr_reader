@@ -26,7 +26,7 @@ globalRouter.use(cookieParser());
 globalRouter.use(express.static('../client/inicio/src'));
 
 
-globalRouter.get('/login', mainHandlers.getLogin);
+globalRouter.get('/', mainHandlers.getLogin);
 globalRouter.post('/login', jwtHelpers.login);
 
 globalRouter.use((req, res, next) => {
@@ -35,7 +35,7 @@ globalRouter.use((req, res, next) => {
 });
 globalRouter.use(jwtHelpers.isUserAuthenticated);
 
-globalRouter.get('/', mainHandlers.getReader);
+globalRouter.get('/inicio', mainHandlers.getReader);
 globalRouter.use('/qrReader', qrRouter);
 
 

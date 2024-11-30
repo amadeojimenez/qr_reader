@@ -23,7 +23,7 @@ async function login(req, res, next) {
     } else {
       res.cookie('access-token', accessToken, { httpOnly: true, sameSite: 'lax', secure: false });
     }
-    res.status(200).send('You have successfully logged in.');
+    res.status(200).redirect('/inicio');
   } catch (error) {
     next(error);
   }
