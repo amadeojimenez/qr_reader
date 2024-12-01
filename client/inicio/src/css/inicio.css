@@ -45,10 +45,10 @@ video {
 #scan-area {
   position: absolute;
   pointer-events: none; /* Non-interactive */
-  background-color: rgba(138, 138, 138, 0.084); 
+  background-color: transparent; 
 
-  --s: 50px; /* size of the corners */
-  border: 9px solid #198754; 
+  --s: 20px; /* size of the corners */
+  border: 3px solid #198754; 
   mask: 
     conic-gradient(#000 0 0) content-box,
     conic-gradient(at var(--s) var(--s),#0000 75%,#000 0) 
@@ -88,19 +88,19 @@ video {
 }
 
 
-#mode-indicator.salida {
+/* #mode-indicator.salida {
   background-color:rgba(0, 0, 255,  0.649);
-}
+} */
 
 /* Toggle Mode Button */
 #toggle-mode-button {
   position: absolute;
-  top: 10px;
+  top: 25px;
   right: 10px;
-  background-color: rgba(0, 0, 0, 0.61);
+  background-color: #939393bb;
   color: #fff;
   border: none;
-  border-radius: 50%;
+  border-radius: 30%;
   width: 40px; /* Explicit width */
   height: 40px; /* Explicit height */
   font-size: 1.2rem; /* Adjust font size for the icon */
@@ -142,7 +142,7 @@ video {
 #unblock-button {
   position: absolute;
   bottom: 20px;
-  left: 53%;
+  left: 50%;
   display: none;
   /* bottom: 45%; */
   transform: translateX(-50%);
@@ -163,10 +163,10 @@ video {
 /* SLEEP MODE */
 #sleep-icon {
   position: absolute;
-  top: 50%; 
+  top: 40%; 
   left: 50%;
   transform: translate(-50%, -50%); 
-  font-size: 6rem; 
+  font-size: 10rem; 
   color: rgba(255, 255, 255, 0.8);
   opacity: 0; 
   transition: opacity 0.3s ease;

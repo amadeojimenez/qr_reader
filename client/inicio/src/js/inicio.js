@@ -17,8 +17,6 @@ $(document).ready(function () {
 
     function setLastReadQR(qr) {//TODO checkear que esto tiene una pirueta ahi abajo
         lastReadQR = qr;
-        resetInactivityTimer(); // Resetea el timer de inactividad para sleep mode
-        clearTimeout(delayQRTimeout) // resetea el timer para el delay generico entre lecturas
         clearTimeout(sameQRTimeout) //resetea el timer del delay por mismo QR
         sameQRTimeout = setTimeout(() => {
             if (lastReadQR === qr) {
@@ -123,11 +121,9 @@ $(document).ready(function () {
     function resetInactivityTimer() {
         clearTimeout(inactivityTimeout);
         if (!isSleepMode) {
-            inactivityTimeout = setTimeout(activateSleepMode, 18000); // 3 minutos :180000 
+            inactivityTimeout = setTimeout(activateSleepMode, 180000); // 3 minutos :180000 
         }
     }
-
-
 
 
     resetInactivityTimer();
@@ -137,7 +133,7 @@ $(document).ready(function () {
     // Function to send QR data to the backend
     function sendQRCodeData(qrData) {
         const shortRandomString = Math.random().toString(36).substring(7);
-        const url = scanMode === 'entrada' ? '/qrReader/in/' + shortRandomString : '/qrReader/out/' +shortRandomString;
+        const url = scanMode === 'entrada' ? '/qrReader/in/' + qrData : '/qrReader/out/' +qrData;
 
         return $.ajax({
             url: url,
@@ -166,11 +162,10 @@ $(document).ready(function () {
                     delayQRTimeout = setTimeout(() => {
                         unblockScanner();
                     }, 2000);
-                    // botonPasar.style.display = 'flex'; // TODO yo quitaria este y unficaria todo en un solo boton (el de abajo)
-                    break;
+                   break;
 
                 case 'already_in':
-                    blockScanner('QR inválido o ya usado!', 'rgba(255, 0, 0, 0.5)');
+                    blockScanner('QR ya usado!', 'rgba(255, 0, 0, 0.5)');
                     audioUnvalidated.play()
                     break;
 
@@ -218,35 +213,52 @@ $(document).ready(function () {
     // Initialize the QR Scanner
     const qrScanner = new QrScanner(
         videoElement,
-        result => {
+        async (result) => {
             if (isScanning) {
                 if (didIJustReadThisQR(result)) {
                     return;
                 }
+                resetInactivityTimer(); // Resetea el timer de inactividad para sleep mode
+                clearTimeout(delayQRTimeout) // resetea el timer para el delay generico entre lecturas
                 setLastReadQR(result);
-                console.log('Decoded QR Code:', result);
+                
                 isScanning = false; // Disable scanning until response is received
                 statusElement.textContent = 'Procesando QR...';
+                console.log('Decoded QR Code:', result);
+
+                if (!result.startsWith("https://www.camarabadajoz.es/talentday/attendance")) {
+                    blockScanner('QR inválido!', 'rgba(255, 0, 0, 0.5)');
+                    audioUnvalidated.play()
+                    return;
+                }
+                const idMatch = result.match(/\/attendance\/(\d+)$/);
+                console.log(idMatch[1])
 
                 //TODO !!!!!!
                 // aqui el fall back de que pasa si se pierde un poco la conexion. me ha pasado en mi casa!!
                 // Send QR data to the backend
                 // creo que hay un problema al hacerlo asi, mejor usar wait y async
                 // también ver si el QR de la respuesta es el mismo que el QR que se ha mandado, hacer esto
-                sendQRCodeData(result)
-                    .then((response) => {
-                        handleResponse(response.status);
-                    });
+                try {
+                    const response = await sendQRCodeData(idMatch[1]);
+
+                    handleResponse(response.status);
+                } catch (error) {
+                    console.error("Failed to send QR data:", error);
+                    // blockScanner('Conexión fallida. Guardado localmente.', 'rgba(255, 165, 0, 0.5)');
+                    // storeOfflineQRData(qrID); // Guardar data offline
+                }
+               
             }
         }
     );
 
-
-
     function startQrScanner() {
+        
         qrScanner
             .start()
             .then(() => {
+                
                 statusElement.textContent = 'Apunta la cámara hacia el QR.';
             })
             .catch((error) => {
@@ -262,7 +274,7 @@ $(document).ready(function () {
 
         // Update the UI based on the new mode
         modeIndicator.textContent = scanMode.toUpperCase();
-        modeIndicator.className = scanMode === 'entrada' ? "badge bg-success mt-3 fs-5" : "badge bg-primary mt-3 fs-5"; // Change background color
+        modeIndicator.className = scanMode === 'entrada' ? "badge bg-success mt-3 fs-5" : "badge bg-primary mt-3 fs-5"; 
         scanAreaElement.style.borderColor = scanMode === 'entrada' ? '#198754' : '#0d6efd';
 
         toggleModeButton.innerHTML = scanMode === 'entrada'
