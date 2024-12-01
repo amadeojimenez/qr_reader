@@ -7,7 +7,7 @@ $(document).ready(function () {
     const modeIndicator = document.getElementById('mode-indicator');
     const toggleModeButton = document.getElementById('toggle-mode-button');
     const unblockButton = document.getElementById('unblock-button');
-    // const botonPasar = document.getElementById('pasar-button');
+    const refreshButton = document.getElementById('refresh-button');
     const sleepIcon = document.getElementById('sleep-icon');
     let lastReadQR = '';
     let inactivityTimeout;
@@ -89,6 +89,7 @@ $(document).ready(function () {
     // Sleep mode functions
     function activateSleepMode() {
         isSleepMode = true;
+        refreshButton.style.display = "none"
         videoElement.style.display = 'none';
         scanAreaElement.style.display = 'none';
         statusElement.style.display = 'none'; 
@@ -103,6 +104,7 @@ $(document).ready(function () {
 
     function exitSleepMode() {
         isSleepMode = false;
+        refreshButton.style.display = 'flex'; 
         videoElement.style.display = 'block';
         scanAreaElement.style.display = 'block'; 
         statusElement.style.display = 'block'; 

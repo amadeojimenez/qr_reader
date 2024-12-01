@@ -101,13 +101,13 @@ video {
   color: #fff;
   border: none;
   border-radius: 30%;
-  width: 40px; /* Explicit width */
-  height: 40px; /* Explicit height */
-  font-size: 1.2rem; /* Adjust font size for the icon */
-  line-height: 40px; /* Center align the icon vertically */
+  width: 40px; 
+  height: 40px; 
+  font-size: 1.2rem; 
+  line-height: 40px; 
   display: flex;
-  justify-content: center; /* Center align the icon horizontally */
-  align-items: center; /* Center align the icon vertically */
+  justify-content: center; 
+  align-items: center;
   cursor: pointer;
   z-index: 15;
 }
@@ -203,13 +203,13 @@ body.sleep-mode #unblock-button {
   color: #fff;
   border: none;
   border-radius: 30%;
-  width: 40px; /* Explicit width */
-  height: 40px; /* Explicit height */
-  font-size: 1.2rem; /* Adjust font size for the icon */
-  line-height: 40px; /* Center align the icon vertically */
+  width: 40px; 
+  height: 40px;
+  font-size: 1.2rem; 
+  line-height: 40px; 
   display: flex;
-  justify-content: center; /* Center align the icon horizontally */
-  align-items: center; /* Center align the icon vertically */
+  justify-content: center; 
+  align-items: center;
   cursor: pointer;
   z-index: 15;
 }
