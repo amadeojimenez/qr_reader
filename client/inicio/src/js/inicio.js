@@ -285,3 +285,7 @@ $(document).ready(function () {
     // Start scanning
     startQrScanner();
 });
+
+document.getElementById("refresh-button").addEventListener("click", () => {
+    location.reload();
+});
