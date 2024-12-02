@@ -78,7 +78,6 @@ video {
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 128, 0, 0.649);
   color: #fff;
   padding: 10px 20px;
   border-radius: 20px;
@@ -95,10 +94,9 @@ video {
 /* Toggle Mode Button */
 #toggle-mode-button {
   position: absolute;
-  top: 25px;
-  right: 20px;
-  background-color: #939393bb;
-  color: #fff;
+  top: 26px;
+  right: 17px;
+  background-color: #0d6efd;
   border: none;
   border-radius: 30%;
   width: 40px; 
@@ -112,8 +110,10 @@ video {
   z-index: 15;
 }
 
+/* #198754 */
+
 #toggle-mode-button i {
-  color: #fff;
+  color: white;
 }
 /* 
 #pasar-button {
@@ -197,7 +197,7 @@ body.sleep-mode #unblock-button {
 
 #refresh-button {
   position: absolute;
-  top: 25px;
+  top: 26px;
   left: 25px;
   background-color: #939393bb;
   color: #fff;

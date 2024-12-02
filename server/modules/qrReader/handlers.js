@@ -25,7 +25,25 @@ const salidaEvento = async (req, res, next) => {
     }
 };
 
+const offlineData = async (req, res, next) => {
+    try {
+        const offlineQrData = req.body; 
+
+        if (!Array.isArray(offlineQrData) || offlineQrData.length === 0) {
+            return res.status(400).send({ status: 'error', message: 'QRdata no válida.' });
+        }
+
+        const result = await services.offlineData(offlineQrData);
+       
+        res.send({ status: 'processed', result });
+    } catch (e) {
+        debug('Error in handlers/offlineData ' + e);
+        next(e);
+    }
+};
+
 module.exports = {
     entradaEvento,
-    salidaEvento
+    salidaEvento,
+    offlineData
 }

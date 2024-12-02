@@ -55,12 +55,32 @@ const salidaEvento = async (idUser) => {
         throw e;
     }
 }
-entradaEvento(300)
-salidaEvento(300)
-entradaEvento(1200)
-entradaEvento(1200)
+
+const offlineData = async (offlineQrData) => {
+    try {
+     
+         const QrDataToInsert = offlineQrData.map(record => ({
+            user_id: record.id,
+            action: record.inOrOut,
+            fecha: record.timestamp,
+        }));
+
+        await knex('t_users').insert(QrDataToInsert);
+
+        return 'Offline data processed successfully.';
+    } catch (e) {
+        debug('Error in services/offlineData ' + e);
+        throw e;
+    }
+};
+
+// entradaEvento(300)
+// salidaEvento(300)
+// entradaEvento(1200)
+// entradaEvento(1200)
 
 module.exports = {
     entradaEvento,
-    salidaEvento
+    salidaEvento,
+    offlineData
 }

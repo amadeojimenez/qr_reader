@@ -26,7 +26,7 @@ globalRouter.use(cookieParser());
 globalRouter.use(express.static('../client/inicio/src'));
 
 
-globalRouter.get('/login', mainHandlers.getLogin);
+globalRouter.get(['/','/login'], mainHandlers.getLogin);
 globalRouter.post('/login', jwtHelpers.login);
 
 globalRouter.use((req, res, next) => {
