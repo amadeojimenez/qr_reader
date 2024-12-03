@@ -31,12 +31,48 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* #video-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); 
+  z-index: 1;
+} */
+
+#scan-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  animation: scan 2s infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+    background: rgba(255, 255, 255, 1);
+  }
+  100% {
+    top: 100%;
+    background: rgba(255, 255, 255, 0);
+  }
 }
 
 
 video {
-  width: 100%;
-  height: 100%;
+  width: 290px;
+  height: 290px;
   object-fit: cover; 
   
 }
@@ -44,8 +80,11 @@ video {
 /* un area para escanear, realmente el software pilla más parte de la pantalla pero así es más intuitivo para el User */
 #scan-area {
   position: absolute;
+  width: 200px;
+  height: 200px;
   pointer-events: none; /* Non-interactive */
-  background-color: transparent; 
+  background-color: transparent;
+  z-index:2;
 
   --s: 20px; /* size of the corners */
   border: 3px solid #198754; 
@@ -55,6 +94,7 @@ video {
     0 0/calc(100% - var(--s)) calc(100% - var(--s));
 
 }
+
 
 #status {
   position: absolute;
