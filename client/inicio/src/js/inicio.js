@@ -32,8 +32,7 @@ $(document).ready(function () {
         const expirationDate = new Date();
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
         document.cookie = `${cookieName}=${cookieValue}; expires=${expirationDate.toUTCString()}; path=/`;
-        userId = userCookie.split('=')[1];
-        console.log('Cookie set to identify user:', userId);
+        userId = cookieValue;
     }
     
     function setUserId() {
@@ -131,6 +130,7 @@ $(document).ready(function () {
         unblockButton.textContent = 'Escanear'; 
 
         document.body.classList.add('sleep-mode');
+        isScanning = false;
     }
 
     function exitSleepMode() {
@@ -411,7 +411,8 @@ flushLocalStorage();
     // Initialize the QR Scanner
     const qrScanner = new QrScanner(
         videoElement,
-        async (result) => {
+        async (_result) => {
+            const result = _result.data;
             if (isScanning) {
                 
                 if (didIJustReadThisQR(result)) {
@@ -448,6 +449,19 @@ flushLocalStorage();
                 }
                
             }
+        },
+
+        {
+            highlightScanRegion: true, // Highlight the scan region
+            highlightCodeOutline: true, // Highlight detected QR code outline
+            maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
+            scanRegion: {
+                x: 0,
+                y: 0,
+                width: 0.8,
+                height: 0.8,
+            },
+            
         }
     );
 

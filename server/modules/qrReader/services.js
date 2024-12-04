@@ -19,77 +19,77 @@ const checkIfMustSign = async (idUser) => {
 }
 
 
-const entradaEvento = async (idUser, uniqueHash='none') => {
-    try {
-        if (!checkIfValidQR(idUser)) {
-            return 'invalid_id';
-        }
-        const lastUserRecord = await knex('t_users').where('user_id', idUser).orderBy('fecha', 'desc').first();
-
-        if (!lastUserRecord) {
-            await knex('t_users').insert({uniqueHash, user_id: idUser, action: 'in' });
-            const checkIfSign = await checkIfMustSign(idUser);
-            if (checkIfSign) {
-                return 'must_sign';
-            } else {
-                return 'ok';
-            }
-        } else if (lastUserRecord.action === 'out') {
-            await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'in' });
-            return 'was_out';
-        } else {
-            return 'already_in';
-        }
-    } catch (e) {
-        debug('Error in services/entradaEvento ' + e);
-        throw e;
-    }
-}
-
-
-
-const salidaEvento = async (idUser, uniqueHash = 'none') => {
-    try {
-        if (!checkIfValidQR(idUser)) {
-            return 'invalid_id';
-        }
-        const lastUserRecord = await knex('t_users').where('user_id', idUser).orderBy('fecha', 'desc').first();
-        if (!lastUserRecord) {
-            return 'not_in';
-        } else if (lastUserRecord.action === 'in') {
-            await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'out' });
-            return 'was_in';
-        } else {
-            return 'already_out';
-        }
-    } catch (e) {
-        debug('Error in services/salidaEvento ' + e);
-        throw e;
-    }
-}
-
 // const entradaEvento = async (idUser, uniqueHash='none') => {
 //     try {
-       
+//         if (!checkIfValidQR(idUser)) {
+//             return 'invalid_id';
+//         }
+//         const lastUserRecord = await knex('t_users').where('user_id', idUser).orderBy('fecha', 'desc').first();
+
+//         if (!lastUserRecord) {
 //             await knex('t_users').insert({uniqueHash, user_id: idUser, action: 'in' });
-//             return 'done';
-       
+//             const checkIfSign = await checkIfMustSign(idUser);
+//             if (checkIfSign) {
+//                 return 'must_sign';
+//             } else {
+//                 return 'ok';
+//             }
+//         } else if (lastUserRecord.action === 'out') {
+//             await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'in' });
+//             return 'was_out';
+//         } else {
+//             return 'already_in';
+//         }
 //     } catch (e) {
 //         debug('Error in services/entradaEvento ' + e);
 //         throw e;
 //     }
 // }
 
+
+
 // const salidaEvento = async (idUser, uniqueHash = 'none') => {
 //     try {
-       
+//         if (!checkIfValidQR(idUser)) {
+//             return 'invalid_id';
+//         }
+//         const lastUserRecord = await knex('t_users').where('user_id', idUser).orderBy('fecha', 'desc').first();
+//         if (!lastUserRecord) {
+//             return 'not_in';
+//         } else if (lastUserRecord.action === 'in') {
 //             await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'out' });
-//             return 'done';
+//             return 'was_in';
+//         } else {
+//             return 'already_out';
+//         }
 //     } catch (e) {
 //         debug('Error in services/salidaEvento ' + e);
 //         throw e;
 //     }
 // }
+
+const entradaEvento = async (idUser, uniqueHash='none') => {
+    try {
+       
+            await knex('t_users').insert({uniqueHash, user_id: idUser, action: 'in' });
+            return 'done';
+       
+    } catch (e) {
+        debug('Error in services/entradaEvento ' + e);
+        throw e;
+    }
+}
+
+const salidaEvento = async (idUser, uniqueHash = 'none') => {
+    try {
+       
+            await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'out' });
+            return 'done';
+    } catch (e) {
+        debug('Error in services/salidaEvento ' + e);
+        throw e;
+    }
+}
 
 
 // const insertLocalStorageIntoDB = async (LocalStorageData) => {
