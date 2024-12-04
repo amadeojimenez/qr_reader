@@ -115,6 +115,7 @@ $(document).ready(function () {
     // Sleep mode functions
     function activateSleepMode() {
         isSleepMode = true;
+        isScanning = false;
         refreshButton.style.display = "none"
         videoElement.style.display = 'none';
         scanAreaElement.style.display = 'none';
@@ -130,6 +131,7 @@ $(document).ready(function () {
 
     function exitSleepMode() {
         isSleepMode = false;
+        isScanning = true;
         refreshButton.style.display = 'flex'; 
         videoElement.style.display = 'block';
         scanAreaElement.style.display = 'block'; 
@@ -137,11 +139,11 @@ $(document).ready(function () {
         modeIndicator.style.display = 'block'; 
         toggleModeButton.style.display = 'flex'; 
         sleepIcon.style.display = 'none'; 
-        unblockButton.style.display = 'none'; 
         unblockButton.textContent = 'Seguir'; 
 
         document.body.classList.remove('sleep-mode');
 
+        unblockScanner();
         resetInactivityTimer();
 
     }
@@ -149,7 +151,7 @@ $(document).ready(function () {
     function resetInactivityTimer() {
         clearTimeout(inactivityTimeout);
         if (!isSleepMode) {
-            inactivityTimeout = setTimeout(activateSleepMode, 180000); // 3 minutos :180000 
+            inactivityTimeout = setTimeout(activateSleepMode, 120000); // 2 minutos :120000 
         }
     }
 
