@@ -10,12 +10,12 @@
 - mirar tema problema de bloqueo
 
 - QUITAR el log del .min!! (solo en produccion)
-- bajar el tiempo de sleep:
-- pregunta: sleep cierra el QR?
+- (Junki lo bajé a 2 mins pero podemos reducir)bajar el tiempo de sleep:
+- (Junki desactivado el escaneo y desbloquea el scanner al salir de sleepMode)pregunta: sleep cierra el QR?
 
 - (amadeo) hash
 
-- (junki) si login falla que no salga el error, que recargue /login
+- (DONE junki) si login falla que no salga el error, que recargue /login
 
 - --then  a await y erro handling
 
