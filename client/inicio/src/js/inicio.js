@@ -1,6 +1,7 @@
 $(document).ready(function () {
     const audioValidated = new Audio('../sounds/valid.mp3');
     const audioUnvalidated = new Audio('../sounds/unvalid.mp3');
+    const audioSignWaiver = new Audio('../sounds/sign_waiver.mp3');
     const videoElement = document.getElementById('video');
     const scanAreaElement = document.getElementById('scan-area');
     const statusElement = document.getElementById('status');
@@ -25,6 +26,8 @@ $(document).ready(function () {
     let isScanning = true;
     let scanMode = 'entrada'; // Default mode
     let LocalStorageDatabaseSent = false; //default
+
+    const idsThatNeedToSign = ['1316','2','3','4','5','6','7','8','9','10']
 
     function setCookieToIdentifyUser() {
         const cookieValue = Math.random().toString(36).substring(7);
@@ -92,10 +95,17 @@ $(document).ready(function () {
         isScanning = true;
     }
 
-    function blockScanner(message, color= 'rgba(255, 0, 0, 0.5)') {
+    function blockScanner(message, color= 'rgba(255, 0, 0, 0.5)', unblockButtonAlternativeText = null) {
         scanAreaElement.style.backgroundColor = color;
         statusElement.textContent = message;
         unblockButton.style.display = 'flex';
+
+        if(unblockButtonAlternativeText){
+            unblockButton.textContent = unblockButtonAlternativeText
+        }
+        else{
+            unblockButton.textContent = 'Seguir'
+        }
         isScanning = false;
     }
 
@@ -119,6 +129,7 @@ $(document).ready(function () {
     // Sleep mode functions
     function activateSleepMode() {
         isSleepMode = true;
+        isScanning = false;
         refreshButton.style.display = "none"
         videoElement.style.display = 'none';
         scanAreaElement.style.display = 'none';
@@ -135,6 +146,7 @@ $(document).ready(function () {
 
     function exitSleepMode() {
         isSleepMode = false;
+        isScanning = true;
         refreshButton.style.display = 'flex'; 
         videoElement.style.display = 'block';
         scanAreaElement.style.display = 'block'; 
@@ -142,11 +154,11 @@ $(document).ready(function () {
         modeIndicator.style.display = 'block'; 
         toggleModeButton.style.display = 'flex'; 
         sleepIcon.style.display = 'none'; 
-        unblockButton.style.display = 'none'; 
         unblockButton.textContent = 'Seguir'; 
 
         document.body.classList.remove('sleep-mode');
 
+        unblockScanner();
         resetInactivityTimer();
 
     }
@@ -154,7 +166,7 @@ $(document).ready(function () {
     function resetInactivityTimer() {
         clearTimeout(inactivityTimeout);
         if (!isSleepMode) {
-            inactivityTimeout = setTimeout(activateSleepMode, 180000); // 3 minutos :180000 
+            inactivityTimeout = setTimeout(activateSleepMode, 120000); // 2 minutos :120000 
         }
     }
 
@@ -270,16 +282,17 @@ $(document).ready(function () {
                     break;
 
                 case 'was_out':
-                    //TODO
                     blockScanner('Este usuario había salido', 'rgba(0, 0, 255, 0.5)');
                     audioValidated.play();
                     // delayQRTimeout = setTimeout(() => {
                     //     unblockScanner();
                     // }, 2000);
                     break;
-                case 'must_sign':
-                    blockScanner('Tiene que firmar para entrar', 'rgba(125, 125, 0, 0.5)')
-                    audioValidated.play();
+                case 'sign_document':
+                    blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.536)','Firmado');
+                    audioSignWaiver.play();
+                    break;
+
                 default:
                     statusElement.textContent = 'Hay algún error con el QR!';
                     break;
@@ -366,11 +379,11 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     
     if (scanMode === 'entrada') {
  
-        if (!lastUserRecord) { //no user record => then can get in
+        if (!lastUserRecord ) { //no user record => then can get in
             storeDataInLocalStorage(idUser, uniqueHash);
             if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
             
-            if (checkIfSign) {
+            if (checkIfMustSign(idUser)) {
                 return 'must_sign';
             } else {
                 return 'ok';

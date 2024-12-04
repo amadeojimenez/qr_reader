@@ -13,6 +13,7 @@ async function login(req, res, next) {
     const { username, password } = req.body;
     // await services.checkPasswordUser(username, password);
     if (username !== _username || password !== _password) {
+      res.status(401).redirect('/login');
       throw new Error('Invalid username or password');
     }
     const accessToken = jwt.sign({ username }, usersjwtsecret, { expiresIn: '3d' });
