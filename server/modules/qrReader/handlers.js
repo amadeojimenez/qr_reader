@@ -25,7 +25,7 @@ const salidaEvento = async (req, res, next) => {
     }
 };
 
-const offlineData = async (req, res, next) => {
+const insertLocalStorageIntoDB = async (req, res, next) => {
     try {
         const offlineQrData = req.body; 
 
@@ -33,11 +33,23 @@ const offlineData = async (req, res, next) => {
             return res.status(400).send({ status: 'error', message: 'QRdata no válida.' });
         }
 
-        const result = await services.offlineData(offlineQrData);
+        const result = await services.insertLocalStorageIntoDB(offlineQrData);
        
         res.send({ status: 'processed', result });
     } catch (e) {
-        debug('Error in handlers/offlineData ' + e);
+        debug('Error in handlers/insertLocalStorageIntoDB ' + e);
+        next(e);
+    }
+};
+
+const getUpdatedDatabase = async (req, res, next) => {
+    try {
+        
+        const updatedDatabase = await services.getUpdatedDatabase();
+
+        res.send(updatedDatabase);
+    } catch (e) {
+        debug('Error in handlers/getUpdatedDatabase ' + e);
         next(e);
     }
 };
@@ -45,5 +57,6 @@ const offlineData = async (req, res, next) => {
 module.exports = {
     entradaEvento,
     salidaEvento,
-    offlineData
+    insertLocalStorageIntoDB,
+    getUpdatedDatabase
 }

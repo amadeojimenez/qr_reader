@@ -56,20 +56,91 @@ const salidaEvento = async (idUser) => {
     }
 }
 
-const offlineData = async (offlineQrData) => {
-    try {
+// const insertLocalStorageIntoDB = async (LocalStorageData) => {
+//     try {
      
-         const QrDataToInsert = offlineQrData.map(record => ({
+//          const QrDataToInsert = LocalStorageData.map(record => ({
+//             user_id: record.id,
+//             action: record.inOrOut,
+//             fecha: record.timestamp,
+//         }));
+
+//         await knex('t_users').insert(QrDataToInsert);
+
+//         return 'Offline data processed successfully.';
+//     } catch (e) {
+//         debug('Error in services/insertLocalStorageIntoDB ' + e);
+//         throw e;
+//     }
+// };
+
+const insertLocalStorageIntoDB = async (LocalStorageData) => {
+    try {
+
+        const incomingHashes = LocalStorageData.map(record => record.hash);
+
+        // Fetch existing hashes from the database
+        const existingHashes = await knex('t_users')
+            .whereIn('hash', incomingHashes)
+            .pluck('hash'); // Fetch only the hash column
+
+        // Filter out records that already exist in the database
+        const newQrData = LocalStorageData.filter(record => !existingHashes.includes(record.hash));
+
+        if (newQrData.length === 0) {
+            return 'No new data to insert.';
+        }
+
+        const QrDataToInsert = newQrData.map(record => ({
             user_id: record.id,
             action: record.inOrOut,
             fecha: record.timestamp,
+            hash: record.hash, 
         }));
 
+        // Insert the new data into the database
         await knex('t_users').insert(QrDataToInsert);
 
-        return 'Offline data processed successfully.';
+        return `${newQrData.length} new records inserted successfully.`;
     } catch (e) {
-        debug('Error in services/offlineData ' + e);
+        debug('Error in services/insertLocalStorageIntoDB ' + e);
+        throw e;
+    }
+};
+
+
+// const getUpdatedDatabase = async () => {
+//     try {
+//         const result = await knex('t_users').select('user_id', 'action', 'fecha');
+
+//         const formattedData = result.map(record => ({
+//             id: record.user_id,
+//             inOrOut: record.action,
+//             timestamp: record.fecha,
+//         }));
+
+//         return formattedData;
+//     } catch (e) {
+//         debug('Error in services/getUpdatedDatabase ' + e);
+//         throw e;
+//     }
+// };
+
+
+const getUpdatedDatabase = async () => {
+    try {
+        const result = await knex('t_users').select('user_id', 'action', 'fecha', 'hash');
+
+        const formattedData = result.map(record => ({
+            id: record.user_id,
+            inOrOut: record.action,
+            timestamp: record.fecha,
+            hash: record.hash
+        }));
+
+        return formattedData;
+    } catch (e) {
+        debug('Error in services/getUpdatedDatabase ' + e);
         throw e;
     }
 };
@@ -82,5 +153,6 @@ const offlineData = async (offlineQrData) => {
 module.exports = {
     entradaEvento,
     salidaEvento,
-    offlineData
+    insertLocalStorageIntoDB,
+    getUpdatedDatabase
 }

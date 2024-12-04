@@ -13,6 +13,7 @@ $(document).ready(function () {
     let inactivityTimeout;
     let delayQRTimeout;
     let sameQRTimeout;
+    let mergeDatabasesTimer = null;
     let isSleepMode = false;
     let isScanning = true;
     let scanMode = 'entrada'; // Default mode
@@ -130,23 +131,25 @@ $(document).ready(function () {
     //------OFFLINE QR DATA SAVING------------
     let offlineDataSent = false;
 
-    function storeOfflineQRData(id, scanMode) {
+    function storeDataInLocalStorage(id, scanMode) {
         let inOrOut = 'in';
         if(scanMode === 'salida') inOrOut = 'out';
 
         const timestamp = new Date().toISOString();
-        const offlineData = JSON.parse(localStorage.getItem("offlineQRData")) || [];
+        const offlineData = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
         offlineData.push({ id, inOrOut, timestamp });
-        localStorage.setItem("offlineQRData", JSON.stringify(offlineData));
+        localStorage.setItem("LocalStorageDatabase", JSON.stringify(offlineData));
         console.log("Datos guardados offline:", { id, inOrOut, timestamp });
     }
 
-    async function sendStoredOfflineData() {
+    
+
+    async function sendStoredLocalStorageData() {
 
         if (offlineDataSent) return;
         offlineDataSent = true; //para prevenir que se reenvie varias veces la misma req al detectar reconexion
 
-        const offlineData = JSON.parse(localStorage.getItem("offlineQRData")) || [];
+        const offlineData = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
         if (offlineData.length === 0){
             console.log('No hay datos en el localStorage')
             offlineDataSent = false;
@@ -163,8 +166,6 @@ $(document).ready(function () {
             });
             console.log("Datos enviados correctamente:", response);
     
-            // si se envia correctamente vaciamos el localStorage
-            localStorage.removeItem("offlineQRData");
         } catch (error) {
             console.error("Failed to send offline data (WE ARE SUPPOSEDLY ONLINE):", error);
     
@@ -172,14 +173,30 @@ $(document).ready(function () {
             offlineDataSent = false; //reseteamos el status para poder enviar nueva data offline o si ha habido un error
         }
     }
+
+    async function getUpdatedDatabase() {
+
+        try {
+            const response = await $.ajax({
+                url: "/qrReader/getDatabase",
+                type: "GET",
+                dataType: "json",
+            });
     
-    //Checks for connectivity
-    function checkForConnection() {
-        window.addEventListener("online", () => {
-            console.log("Conexion Recuperada. enviado datos registrados offline...");
-            sendStoredOfflineData();
-        });
+            console.log("Database retrieved successfully:", response);
+    
+            // Reemplazamos el LocalStorage con los nuevos datos
+            localStorage.removeItem("LocalStorageDatabase"); 
+            localStorage.setItem("LocalStorageDatabase", JSON.stringify(response)); 
+            console.log("Local storage updated.");
+    
+        } catch (error) {
+            console.error("Failed to fetch the updated database:", error);
+            throw new Error("Unable to retrieve database. Please try again later.");
+        }
     }
+    
+    
 
     // Function to send QR data to the backend
     function sendQRCodeData(qrData) {
@@ -279,6 +296,42 @@ $(document).ready(function () {
 
     }
 
+
+
+// Function to check online status and merge with database
+async function mergeLocalStorageWithDatabase() {
+    try {
+        if (navigator.onLine && !mergeDatabasesTimer) {
+            console.log("The browser is online, and at least 1 minute has passed since last merge. Data can be merged.");
+            
+            try {
+                await sendStoredLocalStorageData();
+            } catch (error) {
+                console.error("Error sending local storage data:", error);
+                throw new Error("Failed to send local storage data.");
+            }
+
+            try {
+                await getUpdatedDatabase();
+            } catch (error) {
+                console.error("Error retrieving updated database:", error);
+                throw new Error("Failed to retrieve updated database.");
+            }
+
+             //contador de 60secs para entrar en la logica cada minuto online
+            mergeDatabasesTimer = setTimeout(() => {
+                mergeDatabasesTimer = null;
+            }, 60000); // 1 minute = 60000 ms
+
+        } else if (!navigator.onLine) {
+            console.log("The browser is offline.");
+        }
+    } catch (error) {
+        console.error("An error occurred during the merge operation:", error);
+    }
+}
+
+
     // Initialize the QR Scanner
     const qrScanner = new QrScanner(
         videoElement,
@@ -288,8 +341,7 @@ $(document).ready(function () {
                 if (didIJustReadThisQR(result)) {
                     return;
                 }
-                
-                sendStoredOfflineData();
+
                 resetInactivityTimer(); // Resetea el timer de inactividad para sleep mode
                 clearTimeout(delayQRTimeout); // resetea el timer para el delay generico entre lecturas
                 setLastReadQR(result);
@@ -317,7 +369,7 @@ $(document).ready(function () {
                     handleResponse(response.status);
                 } catch (error) {
                     console.error("Failed to send QR data (SERVER OFFLINE):", error);
-                    storeOfflineQRData(idMatch[1],scanMode); // Guardar data offline
+                    storeDataInLocalStorage(idMatch[1],scanMode); // Guardar data offline
                 }
                
             }
@@ -361,6 +413,11 @@ $(document).ready(function () {
     }
 
     initializeScanner();
+
+
+// LLama mergeLocalStorageWithDatabase cada segundo
+setInterval(mergeLocalStorageWithDatabase, 1000);
+
 });
 
 
