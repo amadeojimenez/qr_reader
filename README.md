@@ -15,7 +15,7 @@
 
 - (amadeo) hash
 
-- (junki) si login falla que no salga el error, que recargue /login
+- (DONE junki) si login falla que no salga el error, que recargue /login
 
 - --then  a await y erro handling
 
