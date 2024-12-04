@@ -29,7 +29,7 @@ const privateLogger = (req, res, next) => {
         statuscode: `${res.statusCode}`,
         method: req.method,
         endpoint: req.originalUrl,
-        payload: JSON.stringify(req.body)
+        // payload: JSON.stringify(req.body) //TODO!!
     }
     // debug(objectO);
     debug('privateLogger', req.originalUrl)
@@ -46,7 +46,7 @@ const errorsLogger = (err, req, res, next) => {
         statuscode: `${res.statusCode}`,
         method: req.method,
         endpoint: req.originalUrl,
-        payload: JSON.stringify(req.body),
+        // payload: JSON.stringify(req.body),//TODO 
         error: err.message
     }
     // debug(objectO);

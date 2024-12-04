@@ -165,14 +165,22 @@ const insertLocalStorageIntoDB = async (LocalStorageData) => {
 
 const getUpdatedDatabase = async () => {
     try {
-        const result = await knex('t_users').select('user_id', 'action', 'fecha', 'uniqueHash');
-
+        // get only the records with max fecha for each user_id
+        const result = await knex('t_users')
+        .select('user_id', 'action', 'fecha', 'uniqueHash')
+        .whereIn(
+            'fecha',
+            knex('t_users')
+                .select(knex.raw('MAX(fecha)'))
+                .groupBy('user_id')
+        );
         const formattedData = result.map(record => ({
             id: record.user_id,
             inOrOut: record.action,
             timestamp: record.fecha,
             uniqueHash: record.uniqueHash
         }));
+        // console.log('formattedData', formattedData)
 
         return formattedData;
     } catch (e) {

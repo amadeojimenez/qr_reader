@@ -288,7 +288,7 @@ $(document).ready(function () {
                     //     unblockScanner();
                     // }, 2000);
                     break;
-                case 'sign_document':
+                case 'must_sign':
                     blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.536)','Firmado');
                     audioSignWaiver.play();
                     break;
@@ -365,7 +365,7 @@ async function mergeLocalStorageWithDatabase() {
     }
 }
 
-const checkIfMustSign = async (idUser) => {
+const checkIfMustSign = (idUser) => {
     const users = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
     return users.includes(idUser);
 }
@@ -416,7 +416,7 @@ function flushLocalStorage() {
     localStorage.removeItem("LocalStorageDatabase");
     console.log("Local storage flushed.");
 }
-flushLocalStorage();
+flushLocalStorage(); //TODO     !!
 
 
 
