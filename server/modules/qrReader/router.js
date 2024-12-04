@@ -11,6 +11,13 @@ qrRouter.post('/in/:id', qrReaderHandlers.entradaEvento);
 qrRouter.post('/out/:id', qrReaderHandlers.salidaEvento);
 // response.status: not_in, was_in, already_out, invalid_id
 
-qrRouter.post('/offline', qrReaderHandlers.offlineData)
+qrRouter.post('/offline', qrReaderHandlers.insertLocalStorageIntoDB);
+
+qrRouter.get('/getDatabase', qrReaderHandlers.getUpdatedDatabase);
+
+// qrRouter.post('*', (req, res) => {
+//     debug('Error in handlers/entradaEvento ' + e);
+//     res.status(404).send('Not found');
+// }   );
 		
 module.exports = qrRouter;
