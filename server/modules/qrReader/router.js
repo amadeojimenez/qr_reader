@@ -11,7 +11,7 @@ qrRouter.post('/in/:id', qrReaderHandlers.entradaEvento);
 qrRouter.post('/out/:id', qrReaderHandlers.salidaEvento);
 // response.status: not_in, was_in, already_out, invalid_id
 
-qrRouter.post('/offline', qrReaderHandlers.insertLocalStorageIntoDB);
+qrRouter.post('/sendLocalStorageToDB', qrReaderHandlers.insertLocalStorageIntoDB);
 
 qrRouter.get('/getDatabase', qrReaderHandlers.getUpdatedDatabase);
 

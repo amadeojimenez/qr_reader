@@ -154,48 +154,48 @@ $(document).ready(function () {
 
     
     //------OFFLINE QR DATA SAVING------------
-    let offlineDataSent = false;
+    let LocalStorageDatabaseSent = false;
 
-    function storeDataInLocalStorage(id, scanMode) {
+    function storeDataInLocalStorage(id, uniqueHash) {
         let inOrOut = 'in';
         if(scanMode === 'salida') inOrOut = 'out';
 
         const timestamp = new Date().toISOString();
-        const offlineData = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
-        offlineData.push({ id, inOrOut, timestamp });
-        localStorage.setItem("LocalStorageDatabase", JSON.stringify(offlineData));
-        console.log("Datos guardados offline:", { id, inOrOut, timestamp });
+        const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+        LocalStorageDatabase.push({ id, inOrOut, timestamp, uniqueHash });
+        localStorage.setItem("LocalStorageDatabase", JSON.stringify(LocalStorageDatabase));
+        console.log("Datos guardados offline:", { id, inOrOut, timestamp, uniqueHash });
     }
 
     
 
     async function sendStoredLocalStorageData() {
+       
+        if (LocalStorageDatabaseSent) return;
+        LocalStorageDatabaseSent = true; //para prevenir que se reenvie varias veces la misma req al detectar reconexion
 
-        if (offlineDataSent) return;
-        offlineDataSent = true; //para prevenir que se reenvie varias veces la misma req al detectar reconexion
-
-        const offlineData = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
-        if (offlineData.length === 0){
+        const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+        if (LocalStorageDatabase.length === 0){
             console.log('No hay datos en el localStorage')
-            offlineDataSent = false;
+            LocalStorageDatabaseSent = false;
             return; // no se envia nada si no hay nada
         }
-        console.log("Probando el envío de datos offline...");
+        console.log("Probando el envío de datos guardados en local...");
     
         try {
             const response = await $.ajax({
-                url: "/qrReader/offline",
+                url: "/qrReader/sendLocalStorageToDB",
                 type: "POST",
                 contentType: "application/json",
-                data: JSON.stringify(offlineData),
+                data: JSON.stringify(LocalStorageDatabase),
             });
             console.log("Datos enviados correctamente:", response);
     
         } catch (error) {
-            console.error("Failed to send offline data (WE ARE SUPPOSEDLY ONLINE):", error);
+            console.error("Failed to send LocalData:", error);
     
         } finally {
-            offlineDataSent = false; //reseteamos el status para poder enviar nueva data offline o si ha habido un error
+            LocalStorageDatabaseSent = false; //reseteamos el status para poder enviar nueva data offline o si ha habido un error
         }
     }
 
@@ -224,13 +224,10 @@ $(document).ready(function () {
     
 
     // Function to send QR data to the backend
-    function sendQRCodeData(qrData) {
+    function sendDataToDatabase(qrData, uniqueHash) {
         // const shortRandomString = Math.random().toString(36).substring(7);
         const url = scanMode === 'entrada' ? '/qrReader/in/' + qrData : '/qrReader/out/' + qrData;
 
-        const miliseconds = new Date().getTime();
-
-        const uniqueHash = miliseconds+ '---' + userId;
         const data = { uniqueHash };
 
         return $.ajax({
@@ -240,25 +237,26 @@ $(document).ready(function () {
             data: JSON.stringify(data),
             success: function (response) {
                 // alert(response.status, 'STATUS');
+                console.log(response)
                 return response; 
             },
             error: function (err) {
                 console.error('Error:', err);
-                if (scanMode == 'entrada') {
+                // if (scanMode == 'entrada') {
              
-                    blockScanner('Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
-                    audioValidated.play();
-                    delayQRTimeout = setTimeout(() => {
-                         unblockScanner();
-                    }, 2000);
-                }
-                else {
-                    blockScanner('Hasta la próxima!', 'rgba(0, 255, 0, 0.2)');
-                    audioValidated.play();
-                    setTimeout(() => {
-                        unblockScanner();
-                    }, 2000);
-                }
+                //     blockScanner('Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
+                //     audioValidated.play();
+                //     delayQRTimeout = setTimeout(() => {
+                //          unblockScanner();
+                //     }, 2000);
+                // }
+                // else {
+                //     blockScanner('Hasta la próxima!', 'rgba(0, 255, 0, 0.2)');
+                //     audioValidated.play();
+                //     setTimeout(() => {
+                //         unblockScanner();
+                //     }, 2000);
+                // }
                 return { status: 'error' };
             }
         });
@@ -364,6 +362,54 @@ async function mergeLocalStorageWithDatabase() {
 }
 
 
+function processQRValidation(idUser, uniqueHash = 'none') {
+    // Retrieve localStorage database
+    const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+    
+    // Find the last record for the user
+    const lastUserRecord = LocalStorageDatabase.slice().reverse().find(record => record.id === idUser);
+    
+    if (scanMode === 'entrada') {
+ 
+        if (!lastUserRecord) { //no user record => then can get in
+            storeDataInLocalStorage(idUser, uniqueHash);
+            if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
+            
+            return 'ok';
+        } else if (lastUserRecord.inOrOut === 'out') { // Last action was "out" => allow entry
+
+            storeDataInLocalStorage(idUser, uniqueHash)
+            if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
+           return 'was_out';
+        } else {
+            // Already in
+            return 'already_in';
+        }
+    } else if (scanMode === 'salida') {
+
+        if (!lastUserRecord) { //no user record => can't get in
+            return 'not_in';
+        } else if (lastUserRecord.inOrOut === 'in') { // Last action was "in" => allow exit
+            storeDataInLocalStorage(idUser, uniqueHash)
+            if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
+            return 'was_in';
+        } else {
+            // Already out
+            return 'already_out';
+        }
+    }
+}
+
+async function validateQR(idUser, uniqueHash) {
+    try {
+        const response = processQRValidation(idUser, uniqueHash); // Simulate backend response
+        handleResponse(response); // Update UI based on response
+    } catch (error) {
+        console.error("Error processing QR locally:", error);
+    }
+}
+
+
     // Initialize the QR Scanner
     const qrScanner = new QrScanner(
         videoElement,
@@ -391,17 +437,17 @@ async function mergeLocalStorageWithDatabase() {
                 console.log(idMatch[1])
 
                 //TODO !!!!!!
-                // aqui el fall back de que pasa si se pierde un poco la conexion. me ha pasado en mi casa!!
-                // Send QR data to the backend
                 // creo que hay un problema al hacerlo asi, mejor usar wait y async
                 // también ver si el QR de la respuesta es el mismo que el QR que se ha mandado, hacer esto
                 try {
-                    const response = await sendQRCodeData(idMatch[1]);
+                    const miliseconds = new Date().getTime();
+                    const uniqueHash = miliseconds+ '---' + userId;
 
-                    handleResponse(response.status);
+                    validateQR(idMatch[1], uniqueHash)
+
                 } catch (error) {
-                    console.error("Failed to send QR data (SERVER OFFLINE):", error);
-                    storeDataInLocalStorage(idMatch[1],scanMode); // Guardar data offline
+                    console.error("Failed to send QR data:", error);
+                    
                 }
                
             }
@@ -440,7 +486,6 @@ async function mergeLocalStorageWithDatabase() {
     function initializeScanner() {  
     adjustScanArea(); //adjusting the scan area
     resetInactivityTimer(); //reseting the timer to enter sleep mode
-    checkForConnection(); //checking for connection to send stored Data
     startQrScanner();     // Starting the scanner
     }
 

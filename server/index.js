@@ -9,7 +9,7 @@ const { privateLogger, errorsLogger } = require('./middleware/logger.js');
 // const cors = require('cors');
 // const helmet = require('helmet'); //TODO: Implementar helmet
 
-
+globalRouter.use(express.json({ limit: '50mb' })); //POr si pasa lo de entity too large, (eso fue con 1418 entries en LocalStorage)
 
 //JWT //TODO: Implementar JWT
 
