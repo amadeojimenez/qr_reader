@@ -277,7 +277,7 @@ $(document).ready(function () {
                     //     unblockScanner();
                     // }, 2000);
                     break;
-                case 'especial':
+                case 'must_sign':
                     blockScanner('Tiene que firmar para entrar', 'rgba(125, 125, 0, 0.5)')
                     audioValidated.play();
                 default:
@@ -352,6 +352,10 @@ async function mergeLocalStorageWithDatabase() {
     }
 }
 
+const checkIfMustSign = async (idUser) => {
+    const users = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    return users.includes(idUser);
+}
 
 function processQRValidation(idUser, uniqueHash = 'none') {
     // Retrieve localStorage database
@@ -366,7 +370,11 @@ function processQRValidation(idUser, uniqueHash = 'none') {
             storeDataInLocalStorage(idUser, uniqueHash);
             if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
             
-            return 'ok';
+            if (checkIfSign) {
+                return 'must_sign';
+            } else {
+                return 'ok';
+            }
         } else if (lastUserRecord.inOrOut === 'out') { // Last action was "out" => allow entry
 
             storeDataInLocalStorage(idUser, uniqueHash)
@@ -476,9 +484,9 @@ flushLocalStorage();
     });
 
     function initializeScanner() {  
-    adjustScanArea(); //adjusting the scan area
-    resetInactivityTimer(); //reseting the timer to enter sleep mode
-    startQrScanner();     // Starting the scanner
+        adjustScanArea(); //adjusting the scan area
+        resetInactivityTimer(); //reseting the timer to enter sleep mode
+        startQrScanner();     // Starting the scanner
     }
 
     initializeScanner();
