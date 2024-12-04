@@ -9,6 +9,10 @@
 
 - mirar tema problema de bloqueo
 
+- QUITAR el log del .min!! (solo en produccion)
+- bajar el tiempo de sleep:
+- pregunta: sleep cierra el QR?
+
 - (amadeo) hash
 
 - (junki) si login falla que no salga el error, que recargue /login
