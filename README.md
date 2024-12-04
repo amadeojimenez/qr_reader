@@ -1,10 +1,10 @@
 - poner el seguro para QRs leidos muy seguidos en el BE
 - nos van a pasar una lista con unos especiales que tienene que firmar algo, pedir
-- (diego) preparar nueva interacción para gente que tiene que firmar (solo cuando entran por primera vez)
-- generar 100 QRs de alguna manera para hacer una prueba
+- (DONE diego) preparar nueva interacción para gente que tiene que firmar (solo cuando entran por primera vez)
+- (DONE Junki => copiar html https://github.com/IAMJUNKI/QRCreator ) generar 100 QRs de alguna manera para hacer una prueba
 - (am) hablar con los proveedores para que nos pasen la lista
 
-- (junki) mas grande el mensaje
+- (DONE junki) mas grande el mensaje
 - parece que tarde en poder volver a leer un poco.. o mejorar o avisar 
 
 - mirar tema problema de bloqueo
