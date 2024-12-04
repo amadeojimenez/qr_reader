@@ -19,6 +19,7 @@ $(document).ready(function () {
     let isSleepMode = false;
     let isScanning = true;
     let scanMode = 'entrada'; // Default mode
+    let LocalStorageDatabaseSent = false; //default
 
     function setCookieToIdentifyUser() {
         const cookieValue = Math.random().toString(36).substring(7);
@@ -153,8 +154,6 @@ $(document).ready(function () {
     }
 
     
-    //------OFFLINE QR DATA SAVING------------
-    let LocalStorageDatabaseSent = false;
 
     function storeDataInLocalStorage(id, uniqueHash) {
         let inOrOut = 'in';
@@ -225,7 +224,6 @@ $(document).ready(function () {
 
     // Function to send QR data to the backend
     function sendDataToDatabase(qrData, uniqueHash) {
-        // const shortRandomString = Math.random().toString(36).substring(7);
         const url = scanMode === 'entrada' ? '/qrReader/in/' + qrData : '/qrReader/out/' + qrData;
 
         const data = { uniqueHash };
@@ -242,21 +240,6 @@ $(document).ready(function () {
             },
             error: function (err) {
                 console.error('Error:', err);
-                // if (scanMode == 'entrada') {
-             
-                //     blockScanner('Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
-                //     audioValidated.play();
-                //     delayQRTimeout = setTimeout(() => {
-                //          unblockScanner();
-                //     }, 2000);
-                // }
-                // else {
-                //     blockScanner('Hasta la próxima!', 'rgba(0, 255, 0, 0.2)');
-                //     audioValidated.play();
-                //     setTimeout(() => {
-                //         unblockScanner();
-                //     }, 2000);
-                // }
                 return { status: 'error' };
             }
         });
@@ -366,7 +349,7 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     // Retrieve localStorage database
     const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
     
-    // Find the last record for the user
+    // Find the last record for the id
     const lastUserRecord = LocalStorageDatabase.slice().reverse().find(record => record.id === idUser);
     
     if (scanMode === 'entrada') {
@@ -400,14 +383,6 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     }
 }
 
-async function validateQR(idUser, uniqueHash) {
-    try {
-        const response = processQRValidation(idUser, uniqueHash); // Simulate backend response
-        handleResponse(response); // Update UI based on response
-    } catch (error) {
-        console.error("Error processing QR locally:", error);
-    }
-}
 
 
     // Initialize the QR Scanner
@@ -437,13 +412,13 @@ async function validateQR(idUser, uniqueHash) {
                 console.log(idMatch[1])
 
                 //TODO !!!!!!
-                // creo que hay un problema al hacerlo asi, mejor usar wait y async
-                // también ver si el QR de la respuesta es el mismo que el QR que se ha mandado, hacer esto
+                // ver si el QR de la respuesta es el mismo que el QR que se ha mandado, hacer esto
                 try {
                     const miliseconds = new Date().getTime();
                     const uniqueHash = miliseconds+ '---' + userId;
 
-                    validateQR(idMatch[1], uniqueHash)
+                    const response = processQRValidation(idMatch[1], uniqueHash);
+                    handleResponse(response); 
 
                 } catch (error) {
                     console.error("Failed to send QR data:", error);
