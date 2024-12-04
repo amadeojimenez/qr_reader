@@ -69,30 +69,48 @@ body {
   }
 }
 
-
+/* 
 video {
   width: 290px;
   height: 290px;
   object-fit: cover; 
   
-}
+} */
 
 /* un area para escanear, realmente el software pilla más parte de la pantalla pero así es más intuitivo para el User */
 #scan-area {
   position: absolute;
   width: 200px;
   height: 200px;
-  pointer-events: none; /* Non-interactive */
+  pointer-events: none; 
   background-color: transparent;
   z-index:2;
 
-  --s: 20px; /* size of the corners */
+  --s: 20px;
   border: 3px solid #198754; 
   mask: 
     conic-gradient(#000 0 0) content-box,
     conic-gradient(at var(--s) var(--s),#0000 75%,#000 0) 
     0 0/calc(100% - var(--s)) calc(100% - var(--s));
 
+}
+
+#video-container .scan-region-highlight-svg,
+#video-container .code-outline-highlight {
+    stroke: #198754 !important;
+}
+
+#video-container .scan-region-highlight {
+  /* border-radius: 30px; */
+  outline: rgba(0, 0, 0, .25) solid 50vmax;
+}
+#video-container.scan-region-highlight-svg {
+  display: none;
+}
+#video-container .code-outline-highlight {
+  stroke: rgba(255, 255, 255, .5) !important;
+  stroke-width: 15 !important;
+  stroke-dasharray: none !important;
 }
 
 

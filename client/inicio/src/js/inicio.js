@@ -410,26 +410,28 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     const qrScanner = new QrScanner(
         videoElement,
         async (result) => {
+
+            const qrData = result.data;
             if (isScanning) {
                 
-                if (didIJustReadThisQR(result)) {
+                if (didIJustReadThisQR(qrData)) {
                     return;
                 }
 
                 resetInactivityTimer(); // Resetea el timer de inactividad para sleep mode
                 clearTimeout(delayQRTimeout); // resetea el timer para el delay generico entre lecturas
-                setLastReadQR(result);
+                setLastReadQR(qrData);
                 
                 isScanning = false; // Disable scanning until response is received
                 statusElement.textContent = 'Procesando QR...';
-                console.log('Decoded QR Code:', result);
+                console.log('Decoded QR Code:', qrData);
 
-                if (!result.startsWith("https://www.camarabadajoz.es/talentday/attendance")) {
+                if (!qrData.startsWith("https://www.camarabadajoz.es/talentday/attendance")) {
                     blockScanner('QR inválido!', 'rgba(255, 0, 0, 0.5)');
                     audioUnvalidated.play()
                     return;
                 }
-                const idMatch = result.match(/\/attendance\/(\d+)$/);
+                const idMatch = qrData.match(/\/attendance\/(\d+)$/);
                 console.log(idMatch[1])
 
                 //TODO !!!!!!
@@ -447,6 +449,29 @@ function processQRValidation(idUser, uniqueHash = 'none') {
                 }
                
             }
+        },
+        {
+            // highlightScanRegion: true, // Highlight the scan region
+            // highlightCodeOutline: true, // Highlight detected QR code outline
+            // maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
+            // calculateScanRegion: (videoWidth, videoHeight) => {
+            //     // Define a custom scan region (e.g., center region with a smaller area)
+            //     const scanRegionWidth = videoWidth * 0.2;  // 50% of the video width
+            //     const scanRegionHeight = videoHeight * 0.3; // 30% of the video height
+            //     const scanRegionX = (videoWidth - scanRegionWidth) / 2;
+            //     const scanRegionY = (videoHeight - scanRegionHeight) / 2;
+    
+            //     // Return the region in the form of x, y, width, height
+            //     return {
+            //         x: scanRegionX,
+            //         y: scanRegionY,
+            //         width: scanRegionWidth,
+            //         height: scanRegionHeight,
+            //         downScaledWidth: 400,  // Optionally downscale the region for performance
+            //         downScaledHeight: 400
+            //     };
+            // },
+            
         }
     );
 
