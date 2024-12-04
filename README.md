@@ -29,4 +29,4 @@
 
 - (XX) Estetica con header y color en funcion de entrada/salida
 
-- (junki) offline, 
+- (DONE junki) offline, 
