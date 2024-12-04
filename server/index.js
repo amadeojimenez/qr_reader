@@ -5,6 +5,7 @@ const globalRouter = express();
 const cookieParser = require('cookie-parser');
 const debug = require('debug')('&:INDEX JS');
 const jwtHelpers = require('./middleware/jwt.js');
+const { privateLogger, errorsLogger } = require('./middleware/logger.js');
 // const cors = require('cors');
 // const helmet = require('helmet'); //TODO: Implementar helmet
 
@@ -25,6 +26,8 @@ globalRouter.use(cookieParser());
 // Serving static files //TODO check
 globalRouter.use(express.static('../client/inicio/src'));
 
+globalRouter.use(privateLogger)
+
 
 globalRouter.get(['/','/login'], mainHandlers.getLogin);
 globalRouter.post('/login', jwtHelpers.login);
@@ -40,19 +43,17 @@ globalRouter.use('/qrReader', qrRouter);
 
 
 // TODO error handling, 404 and logging
+globalRouter.use('*', (req, res, next) => {
+    const err = new Error('Not found');
+    next(err);
+});
 
-// globalRouter.all('*', (req, res) => {
-// 	try {
-//         const file = 'errorPage.html';
-//         res.sendFile(file, { root: path.join(__dirname, '../client/errorPage') }, function (err) {
-//             if (err) {
-//                 console.log(err);
-//             }
-//         });
-//     } catch (err) {
-//         console.log(err, 'error');
-//     }
-// });
+globalRouter.use(errorsLogger);
+
+globalRouter.use((err, req, res, next) => {
+    debug('Error in globalRouter ' + err);
+    res.status(404).send('No');
+});
 
 
 const port = process.env.PORT || 5050;

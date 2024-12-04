@@ -5,7 +5,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
 
     return queryInterface.sequelize.transaction(async t => {
-    await queryInterface.createTable('requests_logs', {
+    await queryInterface.createTable('error_logs', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -36,13 +36,17 @@ module.exports = {
       payload: {
         allowNull: false,
         type: Sequelize.STRING
+      },
+      error: {
+        allowNull: false,
+        type: Sequelize.STRING
       }
     },{ transaction: t });
   })
   },
   async down(queryInterface, Sequelize) {
     return queryInterface.sequelize.transaction(async t => {
-    await queryInterface.dropTable('requests_logs',{ transaction: t });
+    await queryInterface.dropTable('error_logs',{ transaction: t });
     })
   }
 };

@@ -4,8 +4,8 @@ const debug = require('debug')('&:JWT:');
 const jwt = require('jsonwebtoken');
 const usersjwtsecret = 'secretooaosadjfjadsfojasdofiasd';
 
-const _username = 'CamaraComercio2025';
-const _password = 'lectordeQR2025'
+const _username = 'cc';
+const _password = '2025'
 
 
 async function login(req, res, next) {
