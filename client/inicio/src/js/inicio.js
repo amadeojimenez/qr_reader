@@ -9,6 +9,8 @@ $(document).ready(function () {
     const unblockButton = document.getElementById('unblock-button');
     const refreshButton = document.getElementById('refresh-button');
     const sleepIcon = document.getElementById('sleep-icon');
+    const cookieName = 'talentday-qr-reader';
+    let userId;
     let lastReadQR = '';
     let inactivityTimeout;
     let delayQRTimeout;
@@ -16,6 +18,29 @@ $(document).ready(function () {
     let isSleepMode = false;
     let isScanning = true;
     let scanMode = 'entrada'; // Default mode
+
+    function setCookieToIdentifyUser() {
+        const cookieValue = Math.random().toString(36).substring(7);
+        // set the cookie to expire in 1 year
+        const expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+        document.cookie = `${cookieName}=${cookieValue}; expires=${expirationDate.toUTCString()}; path=/`;
+        userId = userCookie.split('=')[1];
+        console.log('Cookie set to identify user:', userId);
+    }
+    
+    function setUserId() {
+        const cookies = document.cookie.split(';');
+        const userCookie = cookies.find((cookie) => cookie.includes(cookieName));
+        if (!userCookie) {
+            setCookieToIdentifyUser();
+        } else {
+            userId = userCookie.split('=')[1];
+            console.log('Cookie recovered to identify user:', userId);
+        }
+    }
+
+    setUserId();
 
     function setLastReadQR(qr) {//TODO checkear que esto tiene una pirueta ahi abajo
         lastReadQR = qr;
@@ -184,11 +209,18 @@ $(document).ready(function () {
     // Function to send QR data to the backend
     function sendQRCodeData(qrData) {
         // const shortRandomString = Math.random().toString(36).substring(7);
-        const url = scanMode === 'entrada' ? '/qrReader/in/' + qrData : '/qrReader/out/' +qrData;
+        const url = scanMode === 'entrada' ? '/qrReader/in/' + qrData : '/qrReader/out/' + qrData;
+
+        const miliseconds = new Date().getTime();
+
+        const uniqueHash = miliseconds+ '---' + userId;
+        const data = { uniqueHash };
 
         return $.ajax({
             url: url,
             type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
             success: function (response) {
                 // alert(response.status, 'STATUS');
                 return response; 

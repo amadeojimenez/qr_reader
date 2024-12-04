@@ -1,7 +1,7 @@
 const debug = require('debug')('&:QR READER: handlers')
 const { knex } = require('../../database/knex.js');
 
-const checkIfValidQR = async (idUser) => {
+const checkIfValidQR = async (idUser, uniqueHash='none') => {
     try {
         
         const validIds = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
@@ -14,7 +14,7 @@ const checkIfValidQR = async (idUser) => {
 }
 
 
-const entradaEvento = async (idUser) => {
+const entradaEvento = async (idUser, uniqueHash='none') => {
     try {
         if (!checkIfValidQR(idUser)) {
             return 'invalid_id';
@@ -22,10 +22,10 @@ const entradaEvento = async (idUser) => {
         const lastUserRecord = await knex('t_users').where('user_id', idUser).orderBy('fecha', 'desc').first();
 
         if (!lastUserRecord) {
-            await knex('t_users').insert({ user_id: idUser, action: 'in' });
+            await knex('t_users').insert({uniqueHash, user_id: idUser, action: 'in' });
             return 'ok';
         } else if (lastUserRecord.action === 'out') {
-            await knex('t_users').insert({ user_id: idUser, action: 'in' });
+            await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'in' });
             return 'was_out';
         } else {
             return 'already_in';
@@ -36,7 +36,7 @@ const entradaEvento = async (idUser) => {
     }
 }
 
-const salidaEvento = async (idUser) => {
+const salidaEvento = async (idUser, uniqueHash = 'none') => {
     try {
         if (!checkIfValidQR(idUser)) {
             return 'invalid_id';
@@ -45,7 +45,7 @@ const salidaEvento = async (idUser) => {
         if (!lastUserRecord) {
             return 'not_in';
         } else if (lastUserRecord.action === 'in') {
-            await knex('t_users').insert({ user_id: idUser, action: 'out' });
+            await knex('t_users').insert({ uniqueHash, user_id: idUser, action: 'out' });
             return 'was_in';
         } else {
             return 'already_out';

@@ -4,8 +4,9 @@ const services = require('./services');
 
 const entradaEvento = async (req, res, next) => {
     try {
+        const uniqueHash = req.body.uniqueHash
         const idUser = req.params.id
-        const mayComeIn = await services.entradaEvento(idUser)
+        const mayComeIn = await services.entradaEvento(idUser, uniqueHash)
         res.send({status: mayComeIn});
     } catch (e) {
         debug('Error in handlers/entradaEvento ' + e);
@@ -16,8 +17,9 @@ const entradaEvento = async (req, res, next) => {
 
 const salidaEvento = async (req, res, next) => {
     try {
+        const uniqueHash = req.body.uniqueHash
         const idUser = req.params.id
-        const mayComeOut = await services.salidaEvento(idUser)
+        const mayComeOut = await services.salidaEvento(idUser, uniqueHash)
         res.send({status: mayComeOut});
     } catch (e) {
         debug('Error in handlers/salidaEvento ' + e);
