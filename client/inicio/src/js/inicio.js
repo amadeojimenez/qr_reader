@@ -1,6 +1,7 @@
 $(document).ready(function () {
     const audioValidated = new Audio('../sounds/valid.mp3');
     const audioUnvalidated = new Audio('../sounds/unvalid.mp3');
+    const audioSignWaiver = new Audio('../sounds/sign_waiver.mp3');
     const videoElement = document.getElementById('video');
     const scanAreaElement = document.getElementById('scan-area');
     const statusElement = document.getElementById('status');
@@ -20,6 +21,8 @@ $(document).ready(function () {
     let isScanning = true;
     let scanMode = 'entrada'; // Default mode
     let LocalStorageDatabaseSent = false; //default
+
+    const idsThatNeedToSign = ['1316','2','3','4','5','6','7','8','9','10']
 
     function setCookieToIdentifyUser() {
         const cookieValue = Math.random().toString(36).substring(7);
@@ -88,10 +91,17 @@ $(document).ready(function () {
         isScanning = true;
     }
 
-    function blockScanner(message, color= 'rgba(255, 0, 0, 0.5)') {
+    function blockScanner(message, color= 'rgba(255, 0, 0, 0.5)', unblockButtonAlternativeText = null) {
         scanAreaElement.style.backgroundColor = color;
         statusElement.textContent = message;
         unblockButton.style.display = 'flex';
+
+        if(unblockButtonAlternativeText){
+            unblockButton.textContent = unblockButtonAlternativeText
+        }
+        else{
+            unblockButton.textContent = 'Seguir'
+        }
         isScanning = false;
     }
 
@@ -267,13 +277,17 @@ $(document).ready(function () {
                     break;
 
                 case 'was_out':
-                    //TODO
                     blockScanner('Este usuario había salido', 'rgba(0, 0, 255, 0.5)');
                     audioValidated.play();
                     delayQRTimeout = setTimeout(() => {
                         unblockScanner();
                     }, 2000);
                     break;
+                case 'sign_document':
+                    blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.536)','Firmado');
+                    audioSignWaiver.play();
+                    break;
+
                 default:
                     statusElement.textContent = 'Error procesando QR!'
                     break;
@@ -356,12 +370,17 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     
     if (scanMode === 'entrada') {
  
-        if (!lastUserRecord) { //no user record => then can get in
+        if (!lastUserRecord  && !idsThatNeedToSign.includes(idUser) ) { //no user record => then can get in
             storeDataInLocalStorage(idUser, uniqueHash);
             if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
             
             return 'ok';
-        } else if (lastUserRecord.inOrOut === 'out') { // Last action was "out" => allow entry
+        } else if (!lastUserRecord && idsThatNeedToSign.includes(idUser) ) { // no user record and MUST SIGN IDS => allow entry after signing
+
+            storeDataInLocalStorage(idUser, uniqueHash)
+            if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
+           return 'sign_document';
+        }else if (lastUserRecord.inOrOut === 'out') { // Last action was "out" => allow entry
 
             storeDataInLocalStorage(idUser, uniqueHash)
             if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
