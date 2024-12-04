@@ -454,32 +454,32 @@ function processQRValidation(idUser, uniqueHash = 'none') {
             highlightScanRegion: true, // Highlight the scan region
             highlightCodeOutline: true, // Highlight detected QR code outline
             maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
-//             calculateScanRegion: () => {
-//                 const screenWidth = window.innerWidth;  // Use window.innerWidth for viewport width
-//                 const screenHeight = window.innerHeight; 
-//                 const videoWidth = videoElement.videoWidth
-//                 const videoHeight = videoElement.videoHeight
+            calculateScanRegion: () => {
+                const screenWidth = window.innerWidth;  // Use window.innerWidth for viewport width
+                const screenHeight = window.innerHeight; 
+                const videoWidth = videoElement.videoWidth
+                const videoHeight = videoElement.videoHeight
 
-//     console.log(screenHeight,'screenHeight',screenWidth,'scrrenWIdth')
-//     // Calculate the size of the square scan region based on the smaller dimension
-//     const scanRegionSize = Math.min(screenWidth, screenHeight);
-//                 console.log(scanRegionSize,'scanregionsize')
-//     // Calculate the coordinates to center the square on the screen
-//     const x = videoWidth/2 - screenWidth/2;
-//     const y = (screenHeight - scanRegionSize) / 2;
-// console.log(x, 'coordenadas x', y, 'cooordenadas y')
-// console.log (videoWidth,'videowidth')
-// console.log(videoHeight,'videoheight')
+    console.log(screenHeight,'screenHeight',screenWidth,'scrrenWIdth')
+    // Calculate the size of the square scan region based on the smaller dimension
+    const scanRegionSize = Math.min(screenWidth, screenHeight);
+                console.log(scanRegionSize,'scanregionsize')
+    // Calculate the coordinates to center the square on the screen
+    const x = videoWidth/2 - screenWidth/2;
+    const y = (screenHeight - scanRegionSize) / 2;
+console.log(x, 'coordenadas x', y, 'cooordenadas y')
+console.log (videoWidth,'videowidth')
+console.log(videoHeight,'videoheight')
 
-//     return {
-//         x:  videoWidth/2 - screenWidth/2,
-//         y: ((videoHeight-scanRegionSize)/2)/(videoHeight/screenHeight),
-//         // y: 80,
-//         width: scanRegionSize,
-//         height: scanRegionSize
-//         // Avoid downscaled dimensions if scaling is not necessary
-//     };
-            // },
+    return {
+        x:  videoWidth/2 - screenWidth/2,
+        y: '100px',
+        // y: 80,
+        width: scanRegionSize,
+        height: scanRegionSize
+        
+    };
+            },
             
         }
     );
