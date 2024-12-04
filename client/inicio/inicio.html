@@ -25,7 +25,7 @@
 
     <!-- Scanner View -->
     <div id="scanner" >
-        
+        <div id= 'header-section' class="header-section"></div>
         <!-- Video and Scan Area -->
         <div id="video-container" class="position-relative w-100">
             <video id="video" autoplay></video>
@@ -35,14 +35,14 @@
         </div>
 
         <!-- Mode Indicator -->
-        <div id="mode-indicator" class="badge bg-success mt-3 fs-5">ENTRADA</div>
+        <div id="mode-indicator" class="badge mt-3 fs-2">ENTRADA</div>
 
         <!-- Buttons -->
-        <div class="mt-4">
+        <div class="mt-4"  >
             <button id="toggle-mode-button" class="btn btn-secondary me-2">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </button>
-            <button id="unblock-button" class="btn btn-primary" style="display: none;">Seguir</button>
+            <button id="unblock-button" class="btn btn-primary" style="display: none;">Continuar</button>
             <button id="refresh-button" class="btn btn-secondary me-2">
                 <i class="fa-solid fa-arrows-rotate"></i>  
             </button>
@@ -50,6 +50,10 @@
 
         <!-- Sleep Icon  -->
         <i id="sleep-icon" class="fa-regular fa-moon" style="display: none;"></i>
+
+        <!-- image at the foot fo of hte page -->
+        
+        <!-- <img style="width: 100%; z-index: 30; position: absolute; margin-bottom: 0px; bottom: 0" src="/img/up.png" > -->
     </div>
 
     <!-- Bootstrap JS -->

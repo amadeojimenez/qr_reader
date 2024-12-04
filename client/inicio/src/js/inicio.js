@@ -8,8 +8,13 @@ $(document).ready(function () {
     const toggleModeButton = document.getElementById('toggle-mode-button');
     const unblockButton = document.getElementById('unblock-button');
     const refreshButton = document.getElementById('refresh-button');
+    const headerSection = document.getElementById('header-section');
     const sleepIcon = document.getElementById('sleep-icon');
     const cookieName = 'talentday-qr-reader';
+    const colors = {
+        entrada: '#198754',
+        salida: '#0e6698',
+    };
     let userId;
     let lastReadQR = '';
     let inactivityTimeout;
@@ -252,15 +257,15 @@ $(document).ready(function () {
         if (scanMode == 'entrada') {
             switch (status) {
                 case 'ok':
-                    blockScanner('Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
+                    blockScanner('¡Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
                     audioValidated.play();
-                    delayQRTimeout = setTimeout(() => {
-                        unblockScanner();
-                    }, 2000);
+                    // delayQRTimeout = setTimeout(() => {
+                    //     unblockScanner();
+                    // }, 2000);
                    break;
 
                 case 'already_in':
-                    blockScanner('QR ya usado!', 'rgba(255, 0, 0, 0.5)');
+                    blockScanner('Esta persona ya ha entrado', 'rgba(255, 0, 0, 0.5)');
                     audioUnvalidated.play()
                     break;
 
@@ -268,12 +273,15 @@ $(document).ready(function () {
                     //TODO
                     blockScanner('Este usuario había salido', 'rgba(0, 0, 255, 0.5)');
                     audioValidated.play();
-                    delayQRTimeout = setTimeout(() => {
-                        unblockScanner();
-                    }, 2000);
+                    // delayQRTimeout = setTimeout(() => {
+                    //     unblockScanner();
+                    // }, 2000);
                     break;
+                case 'especial':
+                    blockScanner('Tiene que firmar para entrar', 'rgba(125, 125, 0, 0.5)')
+                    audioValidated.play();
                 default:
-                    statusElement.textContent = 'Error procesando QR!'
+                    statusElement.textContent = 'Hay algún error con el QR!';
                     break;
             }
 
@@ -284,9 +292,9 @@ $(document).ready(function () {
                 case 'was_in':
                     blockScanner('Hasta la próxima!', 'rgba(0, 255, 0, 0.2)');
                     audioValidated.play();
-                    setTimeout(() => {
-                        unblockScanner();
-                    }, 2000);
+                    // setTimeout(() => {
+                    //     unblockScanner();
+                    // }, 2000);
                     break;
 
                 case 'already_out':
@@ -383,6 +391,13 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     }
 }
 
+function flushLocalStorage() {
+    localStorage.removeItem("LocalStorageDatabase");
+    console.log("Local storage flushed.");
+}
+flushLocalStorage();
+
+
 
 
     // Initialize the QR Scanner
@@ -409,7 +424,6 @@ function processQRValidation(idUser, uniqueHash = 'none') {
                     return;
                 }
                 const idMatch = result.match(/\/attendance\/(\d+)$/);
-                console.log(idMatch[1])
 
                 //TODO !!!!!!
                 // ver si el QR de la respuesta es el mismo que el QR que se ha mandado, hacer esto
@@ -450,9 +464,12 @@ function processQRValidation(idUser, uniqueHash = 'none') {
 
         // Update the UI based on the new mode
         modeIndicator.textContent = scanMode.toUpperCase();
-        modeIndicator.className = scanMode === 'entrada' ? "badge bg-success mt-3 fs-5" : "badge bg-primary mt-3 fs-5"; 
-        scanAreaElement.style.borderColor = scanMode === 'entrada' ? '#198754' : '#0d6efd';
-        toggleModeButton.style.backgroundColor =   scanMode === 'entrada' ?  '#0d6efd' : '#198754';
+        // modeIndicator.className = scanMode === 'entrada' ? "badge bg-success mt-3 fs-5" : "badge bg-primary mt-3 fs-5"; 
+        modeIndicator.style.backgroundColor = colors[scanMode];
+        scanAreaElement.style.borderColor = colors[scanMode];
+        headerSection.className = scanMode === 'entrada' ? 'header-section' : 'header-section salida';
+        // I need it to use the oppopsite color of the scanMode
+        toggleModeButton.style.backgroundColor = scanMode === 'entrada' ? colors.salida : colors.entrada;
         toggleModeButton.innerHTML = scanMode === 'entrada'
             ? '<i class="fa-solid fa-right-from-bracket"></i>'
             : '<i class="fa-solid fa-person-walking"></i>';
