@@ -70,19 +70,19 @@ $(document).ready(function () {
     });
 
     // Function to dynamically position the scan area
-    function adjustScanArea() {
-        const containerWidth = window.innerWidth;
-        const containerHeight = window.innerHeight;
+    // function adjustScanArea() {
+    //     const containerWidth = window.innerWidth;
+    //     const containerHeight = window.innerHeight;
 
-        // Set the size of the scan area as 75% of the smaller screen dimension
-        const scanAreaSize = Math.min(containerWidth, containerHeight) * 0.75;
+    //     // Set the size of the scan area as 75% of the smaller screen dimension
+    //     const scanAreaSize = Math.min(containerWidth, containerHeight) * 0.75;
 
-        // Apply size and center the scan area
-        scanAreaElement.style.width = `${scanAreaSize}px`;
-        scanAreaElement.style.height = `${scanAreaSize}px`;
-        scanAreaElement.style.top = `${(containerHeight - scanAreaSize) / 2}px`;
-        scanAreaElement.style.left = `${(containerWidth - scanAreaSize) / 2}px`;
-    }
+    //     // Apply size and center the scan area
+    //     scanAreaElement.style.width = `${scanAreaSize}px`;
+    //     scanAreaElement.style.height = `${scanAreaSize}px`;
+    //     scanAreaElement.style.top = `${(containerHeight - scanAreaSize) / 2}px`;
+    //     scanAreaElement.style.left = `${(containerWidth - scanAreaSize) / 2}px`;
+    // }
 
 
     function resetScanner(message= 'Apunta la cámara hacia el QR.') {
@@ -112,7 +112,7 @@ $(document).ready(function () {
 
 
     // Call the function initially and on window resize
-    window.addEventListener('resize', adjustScanArea);
+    // window.addEventListener('resize', adjustScanArea);
 
 
     //mucho ojo con declarar listeners dentro de un listener!!!, igual que cargar los audios y demas
@@ -451,25 +451,34 @@ function processQRValidation(idUser, uniqueHash = 'none') {
             }
         },
         {
-            // highlightScanRegion: true, // Highlight the scan region
-            // highlightCodeOutline: true, // Highlight detected QR code outline
-            // maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
-            // calculateScanRegion: (videoWidth, videoHeight) => {
-            //     // Define a custom scan region (e.g., center region with a smaller area)
-            //     const scanRegionWidth = videoWidth * 0.2;  // 50% of the video width
-            //     const scanRegionHeight = videoHeight * 0.3; // 30% of the video height
-            //     const scanRegionX = (videoWidth - scanRegionWidth) / 2;
-            //     const scanRegionY = (videoHeight - scanRegionHeight) / 2;
-    
-            //     // Return the region in the form of x, y, width, height
-            //     return {
-            //         x: scanRegionX,
-            //         y: scanRegionY,
-            //         width: scanRegionWidth,
-            //         height: scanRegionHeight,
-            //         downScaledWidth: 400,  // Optionally downscale the region for performance
-            //         downScaledHeight: 400
-            //     };
+            highlightScanRegion: true, // Highlight the scan region
+            highlightCodeOutline: true, // Highlight detected QR code outline
+            maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
+//             calculateScanRegion: () => {
+//                 const screenWidth = window.innerWidth;  // Use window.innerWidth for viewport width
+//                 const screenHeight = window.innerHeight; 
+//                 const videoWidth = videoElement.videoWidth
+//                 const videoHeight = videoElement.videoHeight
+
+//     console.log(screenHeight,'screenHeight',screenWidth,'scrrenWIdth')
+//     // Calculate the size of the square scan region based on the smaller dimension
+//     const scanRegionSize = Math.min(screenWidth, screenHeight);
+//                 console.log(scanRegionSize,'scanregionsize')
+//     // Calculate the coordinates to center the square on the screen
+//     const x = videoWidth/2 - screenWidth/2;
+//     const y = (screenHeight - scanRegionSize) / 2;
+// console.log(x, 'coordenadas x', y, 'cooordenadas y')
+// console.log (videoWidth,'videowidth')
+// console.log(videoHeight,'videoheight')
+
+//     return {
+//         x:  videoWidth/2 - screenWidth/2,
+//         y: ((videoHeight-scanRegionSize)/2)/(videoHeight/screenHeight),
+//         // y: 80,
+//         width: scanRegionSize,
+//         height: scanRegionSize
+//         // Avoid downscaled dimensions if scaling is not necessary
+//     };
             // },
             
         }
@@ -505,7 +514,7 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     });
 
     function initializeScanner() {  
-    adjustScanArea(); //adjusting the scan area
+    // adjustScanArea(); //adjusting the scan area
     resetInactivityTimer(); //reseting the timer to enter sleep mode
     startQrScanner();     // Starting the scanner
     }

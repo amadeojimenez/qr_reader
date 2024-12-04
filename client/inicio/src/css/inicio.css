@@ -69,13 +69,13 @@ body {
   }
 }
 
-/* 
+/* Ensure the video fills the entire container */
 video {
-  width: 290px;
-  height: 290px;
+  width: 100%;
+  height: 100%;
   object-fit: cover; 
-  
-} */
+  position: absolute;
+}
 
 /* un area para escanear, realmente el software pilla más parte de la pantalla pero así es más intuitivo para el User */
 #scan-area {
