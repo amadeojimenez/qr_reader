@@ -524,6 +524,49 @@ flushLocalStorage(); //TODO     !!
     initializeScanner();
 
 
+    function activateNoRotationMode() {
+
+        headerSection.style.display = 'none';
+        refreshButton.style.display = "none";
+        videoElement.style.display = 'none';
+        scanAreaElement.style.display = 'none';
+        statusElement.textContent = 'Desactiva la rotación automática o vuelve a rotar tu teléfono.'; 
+        modeIndicator.style.display = 'none';
+        toggleModeButton.style.display = 'none'; 
+        unblockButton.style.display = 'none'; 
+        unblockButton.textContent = 'Escanear'; 
+        isScanning = false;
+    }
+
+    
+    function desactivateNoRotationMode() {
+
+        headerSection.style.display = 'flex';
+        refreshButton.style.display = 'flex'; 
+        videoElement.style.display = 'block';
+        scanAreaElement.style.display = 'block'; 
+        statusElement.style.display = 'block'; 
+        modeIndicator.style.display = 'block'; 
+        toggleModeButton.style.display = 'flex'; 
+        sleepIcon.style.display = 'none'; 
+        unblockButton.textContent = 'Continuar'; 
+        isScanning = true;
+        unblockScanner();
+    }
+
+    function adjustForOrientation() {
+  if (window.innerWidth > window.innerHeight) {
+    
+    activateNoRotationMode();
+  } else {
+    desactivateNoRotationMode();
+  }
+}
+
+// Adjust on page load and whenever orientation changes
+window.addEventListener("load", adjustForOrientation);
+window.addEventListener("resize", adjustForOrientation);
+
 // LLama mergeLocalStorageWithDatabase cada segundo
 setInterval(mergeLocalStorageWithDatabase, 1000);
 
