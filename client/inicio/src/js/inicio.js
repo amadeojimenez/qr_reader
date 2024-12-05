@@ -9,6 +9,8 @@ $(document).ready(function () {
     const modeIndicator = document.getElementById('mode-indicator');
     const toggleModeButton = document.getElementById('toggle-mode-button');
     const unblockButton = document.getElementById('unblock-button');
+    const extraButton = document.getElementById('extra-button');
+    const buttonContainer = document.getElementById('button-container');
     const refreshButton = document.getElementById('refresh-button');
     const headerSection = document.getElementById('header-section');
     const sleepIcon = document.getElementById('sleep-icon');
@@ -73,6 +75,18 @@ $(document).ready(function () {
         }
     });
 
+    extraButton.addEventListener('click', function () {
+        const idUser = this.dataset.id;
+        const uniqueHash = this.dataset.hash;
+    
+        storeDataInLocalStorage(idUser, uniqueHash);
+        if (navigator.onLine) {
+            sendDataToDatabase(idUser, uniqueHash);
+        }
+    
+        unblockScanner();
+    });
+
     // Function to dynamically position the scan area
     function adjustScanArea() {
         const containerWidth = window.innerWidth;
@@ -95,7 +109,7 @@ $(document).ready(function () {
         isScanning = true;
     }
 
-    function blockScanner(message, color= 'rgba(255, 0, 0, 0.5)', unblockButtonAlternativeText = null) {
+    function blockScanner(message, color= 'rgba(255, 0, 0, 0.5)', unblockButtonAlternativeText = null, addExtraButton = null) {
         scanAreaElement.style.backgroundColor = color;
         statusElement.textContent = message;
         unblockButton.style.display = 'flex';
@@ -106,24 +120,28 @@ $(document).ready(function () {
         else{
             unblockButton.textContent = 'Continuar'
         }
+
+        if(addExtraButton){
+            buttonContainer.className = "d-flex justify-content-center two_buttons"
+            extraButton.dataset.id = addExtraButton.id;  // Store idUser
+            extraButton.dataset.hash = addExtraButton.hash; // Store uniqueHash
+        }
+        else{
+            buttonContainer.className = "d-flex justify-content-center single_button"
+        }
+
         isScanning = false;
     }
 
     function unblockScanner() {
         resetScanner()
         unblockButton.style.display = 'none';
+        buttonContainer.className = "d-flex justify-content-center single_button"
     }
 
 
     // Call the function initially and on window resize
     window.addEventListener('resize', adjustScanArea);
-
-
-    //mucho ojo con declarar listeners dentro de un listener!!!, igual que cargar los audios y demas
-    // botonPasar.onclick = () => {
-    //     resetScanner();
-    //     botonPasar.style.display = 'none';
-    // };
 
 
     // Sleep mode functions
@@ -140,7 +158,10 @@ $(document).ready(function () {
         toggleModeButton.style.display = 'none'; 
         sleepIcon.style.display = 'block'; 
         unblockButton.style.display = 'flex'; 
-        unblockButton.textContent = 'Escanear'; 
+        unblockButton.textContent = 'Escanear';
+        buttonContainer.className = "d-flex justify-content-center single_button"
+        
+        // extraButton.style.display = 'flex'; 
 
         document.body.classList.add('sleep-mode');
         isScanning = false;
@@ -271,7 +292,7 @@ $(document).ready(function () {
        
 
         if (scanMode == 'entrada') {
-            switch (status) {
+            switch (status.message) {
                 case 'ok':
                     blockScanner('¡Bienvenid@!', 'rgba(0, 255, 0, 0.4)')
                     audioValidated.play();
@@ -288,12 +309,9 @@ $(document).ready(function () {
                 case 'was_out':
                     blockScanner('Este usuario había salido, puede entrar', 'rgba(0, 255, 0, 0.4)');
                     audioValidated.play();
-                    // delayQRTimeout = setTimeout(() => {
-                    //     unblockScanner();
-                    // }, 2000);
                     break;
                 case 'must_sign':
-                    blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.5)','Firmado');
+                    blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.5)','Pendiente', status);
                     audioSignWaiver.play();
                     break;
 
@@ -304,7 +322,7 @@ $(document).ready(function () {
 
         } else {
 
-            switch (status) {
+            switch (status.message) {
 
                 case 'was_in':
                     blockScanner('Puede salir', 'rgba(0, 0, 255, 0.5)');
@@ -383,35 +401,35 @@ function processQRValidation(idUser, uniqueHash = 'none') {
     
     if (scanMode === 'entrada') {
  
-        if (!lastUserRecord ) { //no user record => then can get in
-            storeDataInLocalStorage(idUser, uniqueHash);
-            if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
+        if (!lastUserRecord ) {
             
-            if (checkIfMustSign(idUser)) {
-                return 'must_sign';
-            } else {
-                return 'ok';
+            if (checkIfMustSign(idUser)) { //no user record and has to sign=> check for sign
+                return {message:'must_sign', id: idUser, hash: uniqueHash};
+            } else { //no user record => then can get in
+                storeDataInLocalStorage(idUser, uniqueHash);
+                if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
+                return {message:'ok'};
             }
         } else if (lastUserRecord.inOrOut === 'out') { // Last action was "out" => allow entry
 
             storeDataInLocalStorage(idUser, uniqueHash)
             if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
-           return 'was_out';
+           return {message:'was_out'};
         } else {
             // Already in
-            return 'already_in';
+            return {message:'already_in'};
         }
     } else if (scanMode === 'salida') {
 
         if (!lastUserRecord) { //no user record => can't get in
-            return 'not_in';
+            return {message:'not_in'};
         } else if (lastUserRecord.inOrOut === 'in') { // Last action was "in" => allow exit
             storeDataInLocalStorage(idUser, uniqueHash)
             if (navigator.onLine) sendDataToDatabase(idUser, uniqueHash);
-            return 'was_in';
+            return {message:'was_in'};
         } else {
             // Already out
-            return 'already_out';
+            return {message:'already_out'};
         }
     }
 }
@@ -555,12 +573,17 @@ flushLocalStorage(); //TODO     !!
     }
 
     function adjustForOrientation() {
-  if (window.innerWidth > window.innerHeight) {
+        if(isSleepMode === false){
+            if (window.innerWidth > window.innerHeight) {
     
-    activateNoRotationMode();
-  } else {
-    desactivateNoRotationMode();
-  }
+                activateNoRotationMode();
+              } else {
+                desactivateNoRotationMode();
+              }
+        }
+        else{
+            return;
+        }
 }
 
 // Adjust on page load and whenever orientation changes

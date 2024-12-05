@@ -190,30 +190,6 @@ video {
   color: white;
 }
 
-#unblock-button {
-  position: absolute;
-  font-weight: bold;
-  bottom: 20px;
-  left: 50%;
-  display: none;
-  /* bottom: 45%; */
-  transform: translateX(-50%);
-  padding: 10px 20px;
-  font-size: 1rem;
-  /* background-color: #3981cf; */
-  /* color: #fff; */
-  /* border: none; */
-  /* border-radius: 50%; */
-  cursor: pointer;
-  z-index: 20;
-  align-items: center;
-  justify-content: center;
-  width: 200px;
-  height: 50px;
-  background-color: rgba(240, 240, 240, 1);
-  color: black; 
-}
-
 /* SLEEP MODE */
 #sleep-icon {
   position: absolute;
@@ -233,7 +209,7 @@ body.sleep-mode #sleep-icon {
 }
 
 /* Cambiamos el styling del unblock button en sleep mode */
-body.sleep-mode #unblock-button {
+body.sleep-mode #button-container.single_button #unblock-button {
   position: absolute;
   top: 80%;
   left: 50%;
@@ -271,3 +247,68 @@ body.sleep-mode #unblock-button {
 #refresh-button i {
   color: #fff;
 }
+
+
+#button-container.single_button #unblock-button {
+  position: absolute;
+  font-weight: bold;
+  bottom: 20px;
+  left: 50%;
+  display: none;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 20;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 50px;
+  background-color: rgba(240, 240, 240, 1);
+  color: black; 
+}
+
+#button-container.single_button #extra-button {
+  display: none;
+}
+
+#button-container.two_buttons{
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 50px; 
+  z-index: 20;
+}
+
+#button-container.two_buttons #extra-button,
+#button-container.two_buttons #unblock-button{
+  z-index: 20;
+  display: flex;
+  font-weight: bold;
+  padding: 5px 0px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 120px;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  border: none;
+  color: rgb(255, 255, 255);
+}
+
+
+#button-container.two_buttons #extra-button{
+
+  background-color: #198754;
+  
+}
+
+
+#button-container.two_buttons #unblock-button{
+  
+  background-color: rgb(235, 199, 20);
+
+}
+
