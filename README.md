@@ -29,4 +29,5 @@
 
 - (XX) Estetica con header y color en funcion de entrada/salida
 
-- (DONE junki) offline, 
+- (DONE junki) offline,
+- (DONE JUNki) dos botones para la firma y confirmar que está firmado para registrar la entrada.
