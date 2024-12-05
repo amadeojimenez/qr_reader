@@ -180,7 +180,7 @@ const getUpdatedDatabase = async () => {
             timestamp: record.fecha,
             uniqueHash: record.uniqueHash
         }));
-        // console.log('formattedData', formattedData)
+        // ©console.log('formattedData', formattedData)
 
         return formattedData;
     } catch (e) {

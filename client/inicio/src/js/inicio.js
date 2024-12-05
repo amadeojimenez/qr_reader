@@ -269,7 +269,7 @@ $(document).ready(function () {
         if (scanMode == 'entrada') {
             switch (status) {
                 case 'ok':
-                    blockScanner('¡Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
+                    blockScanner('¡Bienvenid@!', 'rgba(0, 255, 0, 0.5)')
                     audioValidated.play();
                     // delayQRTimeout = setTimeout(() => {
                     //     unblockScanner();
@@ -282,7 +282,7 @@ $(document).ready(function () {
                     break;
 
                 case 'was_out':
-                    blockScanner('Este usuario había salido', 'rgba(0, 0, 255, 0.5)');
+                    blockScanner('Este usuario había salido, puede entrar', 'rgba(0, 0, 255, 0.5)');
                     audioValidated.play();
                     // delayQRTimeout = setTimeout(() => {
                     //     unblockScanner();
@@ -303,7 +303,7 @@ $(document).ready(function () {
             switch (status) {
 
                 case 'was_in':
-                    blockScanner('Hasta la próxima!', 'rgba(0, 255, 0, 0.2)');
+                    blockScanner('Puede salir', 'rgba(0, 0, 255, 0.5)');
                     audioValidated.play();
                     // setTimeout(() => {
                     //     unblockScanner();
@@ -311,12 +311,12 @@ $(document).ready(function () {
                     break;
 
                 case 'already_out':
-                    blockScanner('Esta persona ya estaba fuera?', 'rgba(255, 0, 0, 0.5)');
+                    blockScanner('Leer de entrada', 'rgba(255, 0, 0, 0.5)');
                     audioUnvalidated.play()
                     break;
 
                 case 'not_in':
-                    blockScanner('No consta que hubiera entrado! Leelo de entrada porfavor', 'rgba(255, 0, 0, 0.5)');
+                    blockScanner('No consta que hubiera entrado, leer de entrada', 'rgba(255, 0, 0, 0.5)');
                     audioUnvalidated.play()
                     break;
 
