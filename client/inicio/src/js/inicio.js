@@ -3,6 +3,7 @@ $(document).ready(function () {
     const audioUnvalidated = new Audio('../sounds/unvalid.mp3');
     const audioSignWaiver = new Audio('../sounds/sign_waiver.mp3');
     const videoElement = document.getElementById('video');
+    const videoContainer = document.getElementById('video-container');
     const scanAreaElement = document.getElementById('scan-area');
     const statusElement = document.getElementById('status');
     const modeIndicator = document.getElementById('mode-indicator');
@@ -27,7 +28,6 @@ $(document).ready(function () {
     let scanMode = 'entrada'; // Default mode
     let LocalStorageDatabaseSent = false; //default
 
-    const idsThatNeedToSign = ['1316','2','3','4','5','6','7','8','9','10']
 
     function setCookieToIdentifyUser() {
         const cookieValue = Math.random().toString(36).substring(7);
@@ -104,7 +104,7 @@ $(document).ready(function () {
             unblockButton.textContent = unblockButtonAlternativeText
         }
         else{
-            unblockButton.textContent = 'Seguir'
+            unblockButton.textContent = 'Continuar'
         }
         isScanning = false;
     }
@@ -130,7 +130,9 @@ $(document).ready(function () {
     function activateSleepMode() {
         isSleepMode = true;
         isScanning = false;
-        refreshButton.style.display = "none"
+        videoContainer.style.display = 'none';
+        headerSection.style.display = 'none';
+        refreshButton.style.display = "none";
         videoElement.style.display = 'none';
         scanAreaElement.style.display = 'none';
         statusElement.style.display = 'none'; 
@@ -147,6 +149,8 @@ $(document).ready(function () {
     function exitSleepMode() {
         isSleepMode = false;
         isScanning = true;
+        videoContainer.style.display = 'flex';
+         headerSection.style.display = 'flex';
         refreshButton.style.display = 'flex'; 
         videoElement.style.display = 'block';
         scanAreaElement.style.display = 'block'; 
@@ -269,7 +273,7 @@ $(document).ready(function () {
         if (scanMode == 'entrada') {
             switch (status) {
                 case 'ok':
-                    blockScanner('¡Bienvenid@!', 'rgba(0, 255, 0, 0.2)')
+                    blockScanner('¡Bienvenid@!', 'rgba(0, 255, 0, 0.4)')
                     audioValidated.play();
                     // delayQRTimeout = setTimeout(() => {
                     //     unblockScanner();
@@ -282,14 +286,14 @@ $(document).ready(function () {
                     break;
 
                 case 'was_out':
-                    blockScanner('Este usuario había salido', 'rgba(0, 0, 255, 0.5)');
+                    blockScanner('Este usuario había salido', 'rgba(0, 255, 0, 0.4)');
                     audioValidated.play();
                     // delayQRTimeout = setTimeout(() => {
                     //     unblockScanner();
                     // }, 2000);
                     break;
                 case 'must_sign':
-                    blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.536)','Firmado');
+                    blockScanner('¡Esta persona debe firmar antes de entrar!', 'rgba(234, 202, 43, 0.5)','Firmado');
                     audioSignWaiver.play();
                     break;
 
@@ -468,12 +472,12 @@ flushLocalStorage(); //TODO     !!
             highlightScanRegion: true, // Highlight the scan region
             highlightCodeOutline: true, // Highlight detected QR code outline
             maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
-            scanRegion: {
-                x: 0,
-                y: 0,
-                width: 0.8,
-                height: 0.8,
-            },
+            // scanRegion: {
+            //     x: 0,
+            //     y: 0,
+            //     width: 0.8,
+            //     height: 0.8,
+            // },
             
         }
     );
@@ -502,6 +506,7 @@ flushLocalStorage(); //TODO     !!
         // modeIndicator.className = scanMode === 'entrada' ? "badge bg-success mt-3 fs-5" : "badge bg-primary mt-3 fs-5"; 
         modeIndicator.style.backgroundColor = colors[scanMode];
         scanAreaElement.style.borderColor = colors[scanMode];
+        videoContainer.className  = scanMode === 'entrada' ? 'position-relative w-100 entrada' : 'position-relative w-100 salida'
         headerSection.className = scanMode === 'entrada' ? 'header-section' : 'header-section salida';
         // I need it to use the oppopsite color of the scanMode
         toggleModeButton.style.backgroundColor = scanMode === 'entrada' ? colors.salida : colors.entrada;
