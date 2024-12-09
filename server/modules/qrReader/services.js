@@ -91,6 +91,17 @@ const salidaEvento = async (idUser, uniqueHash = 'none') => {
     }
 }
 
+const record = async (idUser, uniqueHash = 'none', idDevice, inOrOut) => {
+    try {
+            console.log('record--------', idUser, uniqueHash, idDevice, inOrOut)
+            await knex('t_users').insert({ uniqueHash, user_id: idUser, action: inOrOut, id_device: idDevice });
+            return 'done';
+    } catch (e) {
+        debug('Error in services/salidaEvento ' + e);
+        throw e;
+    }
+}
+
 
 // const insertLocalStorageIntoDB = async (LocalStorageData) => {
 //     try {
@@ -110,10 +121,10 @@ const salidaEvento = async (idUser, uniqueHash = 'none') => {
 //     }
 // };
 
-const insertLocalStorageIntoDB = async (LocalStorageData) => {
+const insertLocalStorageIntoDB = async (localStorageData) => {
     try {
 
-        const incomingHashes = LocalStorageData.map(record => record.uniqueHash);
+        const incomingHashes = localStorageData.map(record => record.uniqueHash);
 
         // Fetch existing hashes from the database
         const existingHashes = await knex('t_users')
@@ -121,7 +132,7 @@ const insertLocalStorageIntoDB = async (LocalStorageData) => {
             .pluck('uniqueHash'); // Fetch only the hash column
 
         // Filter out records that already exist in the database
-        const newQrData = LocalStorageData.filter(record => !existingHashes.includes(record.uniqueHash));
+        const newQrData = localStorageData.filter(record => !existingHashes.includes(record.uniqueHash));
 
         if (newQrData.length === 0) {
             return 'No new data to insert.';
@@ -132,6 +143,7 @@ const insertLocalStorageIntoDB = async (LocalStorageData) => {
             action: record.inOrOut,
             fecha: record.timestamp,
             uniqueHash: record.uniqueHash, 
+            id_device: record.idDevice
         }));
 
         // Insert the new data into the database
@@ -167,7 +179,7 @@ const getUpdatedDatabase = async () => {
     try {
         // get only the records with max fecha for each user_id
         const result = await knex('t_users')
-        .select('user_id', 'action', 'fecha', 'uniqueHash')
+        .select('user_id', 'action', 'fecha', 'uniqueHash', 'id_device')
         .whereIn(
             'fecha',
             knex('t_users')
@@ -178,7 +190,8 @@ const getUpdatedDatabase = async () => {
             id: record.user_id,
             inOrOut: record.action,
             timestamp: record.fecha,
-            uniqueHash: record.uniqueHash
+            uniqueHash: record.uniqueHash,
+            idDevice: record.id_device
         }));
         // ©console.log('formattedData', formattedData)
 
@@ -198,5 +211,6 @@ module.exports = {
     entradaEvento,
     salidaEvento,
     insertLocalStorageIntoDB,
-    getUpdatedDatabase
+    getUpdatedDatabase,
+    record
 }

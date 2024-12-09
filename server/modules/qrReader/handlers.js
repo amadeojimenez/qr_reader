@@ -27,17 +27,29 @@ const salidaEvento = async (req, res, next) => {
     }
 };
 
+const record = async (req, res, next) => {
+    try {
+        const { uniqueHash, idUser, idDevice, inOrOut } = req.body;
+        await services.record(idUser, uniqueHash, idDevice, inOrOut);
+        res.send();
+    } catch (e) {
+        debug('Error in handlers/salidaEvento ' + e);
+        next(e); 
+    }
+}
+
 const insertLocalStorageIntoDB = async (req, res, next) => {
     try {
         const offlineQrData = req.body; 
 
-        if (!Array.isArray(offlineQrData) || offlineQrData.length === 0) {
+        if (!Array.isArray(offlineQrData)) {
             return res.status(400).send({ status: 'error', message: 'QRdata no válida.' });
         }
 
-        const result = await services.insertLocalStorageIntoDB(offlineQrData);
+        await services.insertLocalStorageIntoDB(offlineQrData);
+        const updatedDatabase = await services.getUpdatedDatabase(); 
        
-        res.send({ status: 'processed', result });
+        res.send(updatedDatabase);
     } catch (e) {
         debug('Error in handlers/insertLocalStorageIntoDB ' + e);
         next(e);
@@ -60,5 +72,6 @@ module.exports = {
     entradaEvento,
     salidaEvento,
     insertLocalStorageIntoDB,
-    getUpdatedDatabase
+    getUpdatedDatabase,
+    record
 }

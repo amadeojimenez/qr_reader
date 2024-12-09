@@ -23,37 +23,45 @@ const _errorLogger = winston.createLogger({
 })
 
 const privateLogger = (req, res, next) => {
-    
-    const objectO = {
-        level: 'info',
-        statuscode: `${res.statusCode}`,
-        method: req.method,
-        endpoint: req.originalUrl,
-        // payload: JSON.stringify(req.body) //TODO!!
+    try {
+        const objectO = {
+            level: 'info',
+            statuscode: `${res.statusCode}`,
+            method: req.method,
+            endpoint: req.originalUrl,
+            payload: JSON.stringify(req.body) 
+        }
+        // debug(objectO);
+        debug('privateLogger', req.originalUrl)
+        _privateLogger.log(objectO)
+    } catch (error) {
+        debug('privateLogger', error)
+    } finally {
+        next()
     }
-    // debug(objectO);
-    debug('privateLogger', req.originalUrl)
-    _privateLogger.log(objectO)
     
-    next()
 }
 
 const errorsLogger = (err, req, res, next) => {
-    console.log('Error in errorsLogger ' + err)
-    debug('errorsLogger', req.originalUrl)
-    const objectO = {
-        level: 'error',
-        statuscode: `${res.statusCode}`,
-        method: req.method,
-        endpoint: req.originalUrl,
-        // payload: JSON.stringify(req.body),//TODO 
-        error: err.message
+    try {
+        console.log('Error in errorsLogger ' + err)
+        debug('errorsLogger', req.originalUrl)
+        const objectO = {
+            level: 'error',
+            statuscode: `${res.statusCode}`,
+            method: req.method,
+            endpoint: req.originalUrl,
+            payload: JSON.stringify(req.body || {}),//TODO 
+            error: err.message
+        }
+        // debug(objectO);
+        debug('errorsLogger', objectO)
+        _errorLogger.log(objectO)
+    } catch (e) {
+        debug('Error in errorsLogger ' + e)
+    } finally {
+        next()
     }
-    // debug(objectO);
-    debug('errorsLogger', objectO)
-    _errorLogger.log(objectO)
-
-    next()
 }
 
 module.exports = { privateLogger, errorsLogger }

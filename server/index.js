@@ -38,6 +38,10 @@ globalRouter.use((req, res, next) => {
 });
 globalRouter.use(jwtHelpers.isUserAuthenticated);
 
+globalRouter.get('/favicon.ico', (req, res) => {
+    res.status(204);
+}   
+);
 globalRouter.get('/inicio', mainHandlers.getReader);
 globalRouter.use('/qrReader', qrRouter);
 
