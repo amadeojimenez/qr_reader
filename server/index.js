@@ -6,16 +6,14 @@ const cookieParser = require('cookie-parser');
 const debug = require('debug')('&:INDEX JS');
 const jwtHelpers = require('./middleware/jwt.js');
 const { privateLogger, errorsLogger } = require('./middleware/logger.js');
+const favicon = require('serve-favicon');
 // const cors = require('cors');
 // const helmet = require('helmet'); //TODO: Implementar helmet
 
-globalRouter.use(express.json({ limit: '50mb' })); //POr si pasa lo de entity too large, (eso fue con 1418 entries en LocalStorage)
+globalRouter.use(express.json({ limit: '50mb' })); //POr si pasa lo de entity too large, (eso fue con 1418 entries en LocalStoragex)
 
-//JWT //TODO: Implementar JWT
 
-//Logger // TODO: Implementar logger
-
-const mainHandlers= require('./modules/main/handlers.js'); //TODO poiner los paths normal
+const mainHandlers= require('./modules/main/handlers.js'); 
 const qrRouter = require('./modules/qrReader/router.js');
 
 
@@ -23,8 +21,9 @@ globalRouter.use(express.json());
 globalRouter.use(express.urlencoded({ extended: false }));
 globalRouter.use(cookieParser());
 
-// Serving static files //TODO check
+globalRouter.use(favicon(path.join(__dirname, '../client/inicio/src/img', 'favicon.ico')))
 globalRouter.use(express.static('../client/inicio/src'));
+
 
 globalRouter.use(privateLogger)
 
@@ -46,7 +45,6 @@ globalRouter.get('/inicio', mainHandlers.getReader);
 globalRouter.use('/qrReader', qrRouter);
 
 
-// TODO error handling, 404 and logging
 globalRouter.use('*', (req, res, next) => {
     const err = new Error('Not found');
     next(err);

@@ -7,7 +7,8 @@ const qrRouter = express.Router({ mergeParams: true });
 qrRouter.post('/record', qrReaderHandlers.record);
 
 
-qrRouter.post('/in/:id', qrReaderHandlers.entradaEvento);
+
+qrRouter.post('/in/:id', qrReaderHandlers.entradaEvento); 
 // response.status:  ok, was_out, already_in, invalid_id
 
 qrRouter.post('/out/:id', qrReaderHandlers.salidaEvento);

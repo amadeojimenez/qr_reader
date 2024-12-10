@@ -17,7 +17,7 @@ $(document).ready(function () {
     const sleepIcon = document.getElementById('sleep-icon');
     const cookieName = 'talentday-qr-reader';
     // write to 1000 entries in the allowedhashes object with numbers from 1 to 1000 and value true for all of them
-    const allowedhashes = { ...Array.from({ length: 1000 }, (_, i) => [i + 1, true]) };
+    // const allowedhashes = { ...Array.from({ length: 1000 }, (_, i) => [i + 1, true]) };
     const colors = {
         entrada: '#198754',
         salida: '#0e6698',
@@ -229,7 +229,7 @@ $(document).ready(function () {
 
 
         if (!navigator.onLine) return
-        const url =  `/qrReader/record/` 
+        const url = `/qrReader/record/`
 
         const data = { uniqueHash, idDevice, idUser: _userId, inOrOut };
 
@@ -323,6 +323,15 @@ $(document).ready(function () {
     }
 
     function mergeDatabases(localData, serverData) {
+
+        return serverData;
+        /*
+        Creo que no es necesario hacer cremallera ahora que los datos del servidor llegan como respuesta al enviar los datos locales
+        pero podría salir mal si justo hay la casualidad de que se lee un QR justo mientras llegaba y además falla el envio al servidor...
+        aun asi no esta bien del todo tampoco porq creo que como esta haría crecer mucho el request ya se enviaría siempre todo el historial de este dispositivo
+        sería mejor algo que lleve el registro de elementos ya enviados y recidibidos y solo haga cremallera de lo que no se han recibido en el servidor...
+
+        */
         const mergedData = [...serverData];
         const thisDeviceRecordedData = localData.filter(record => record.idDevice === idDevice || !record.idDevice);
         for (const record of thisDeviceRecordedData) {
@@ -418,12 +427,12 @@ $(document).ready(function () {
                     throw new Error("Failed to send local storage data.");
                 }
 
-                try {
-                    await getDataFromServer();
-                } catch (error) {
-                    console.error("Error retrieving updated database:", error);
-                    throw new Error("Failed to retrieve updated database.");
-                }
+                // try { // data is being sent as response at previous step
+                //     await getDataFromServer();
+                // } catch (error) {
+                //     console.error("Error retrieving updated database:", error);
+                //     throw new Error("Failed to retrieve updated database.");
+                // }
 
                 //contador de 60secs para entrar en la logica cada minuto online
                 mergeDatabasesTimer = setTimeout(() => {
@@ -440,10 +449,11 @@ $(document).ready(function () {
 
 
     const checkIfMustSign = (idUser) => {
-        const users = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-        return users.includes(idUser);
+
+        const must_sign_array = { 1230: true, 792: true, 1259: true, 1036: true, 901: true, 1256: true, 355: true, 972: true, 830: true, 907: true, 520: true, 1234: true, 835: true, 951: true, 932: true, 30: true, 667: true, 1096: true, 690: true, 1091: true, 524: true, 1080: true, 209: true, 545: true, 1100: true, 624: true, 219: true, 220: true, 1333: true, 1221: true, 777: true, 1226: true, 457: true, 1423: true, 1117: true, 1317: true, 32: true, 1105: true, 1037: true, 862: true, 1160: true, 1112: true, 1327: true, 1575: true, 1255: true, 1050: true, 1143: true, 1233: true, 1268: true, 1099: true, 1120: true, 1153: true, 585: true, 784: true, 1422: true, 622: true, 1157: true, 802: true, 891: true, 589: true, 829: true, 1150: true, 686: true, 134: true, 699: true, 1210: true, 1264: true, 705: true, 786: true, 1413: true, 544: true, 211: true, 1483: true, 1161: true, 1263: true, 1101: true, 574: true, 1269: true, 1410: true, 605: true, 996: true, 611: true, 728: true, 697: true, 896: true, 1414: true, 1243: true, 1266: true, 1085: true, 691: true, 958: true, 594: true, 937: true, 588: true, 413: true, 790: true, 685: true, 864: true, 689: true, 943: true, 271: true, 1124: true, 849: true, 523: true, 884: true, 518: true, 593: true, 921: true, 309: true, 164: true, 866: true, 971: true, 591: true, 1435: true, 964: true, 773: true, 687: true, 623: true }
+        log('must_sign_array[idUser]', must_sign_array[idUser])
+        return must_sign_array[idUser];
     }
-    []
     function processQRValidation(idUser) {
         // Retrieve localStorage database
 
@@ -516,16 +526,23 @@ $(document).ready(function () {
                 statusElement.textContent = 'Procesando QR...';
                 log('Decoded QR Code:', result);
 
-                const [qrUrl, idMatch] = result.split('attendance/')
-                if (!qrUrl === "https://www.camarabadajoz.es/talentday/attendance" || !idMatch || !allowedhashes[idMatch]) {
+                const [qrUrl, idMatch] = result.split('attendance/');
+                log(idMatch)
+                log(isNaN(parseInt(idMatch)))
+                log(isNaN(idMatch))
+                function isNumeric(value) {
+                    return /^\d+$/.test(value);
+                }
+                log('isNumeric(idMatch)', isNumeric(idMatch))
+                if (qrUrl !== "https://www.camarabadajoz.es/talentday/" || !idMatch || !isNumeric(idMatch) || parseInt(idMatch) > 1860) {
                     blockScanner('QR inválido!', 'rgba(255, 0, 0, 0.5)');
-                    audioUnvalidated.play()
+                    audioUnvalidated.play();
                     return;
                 }
 
 
                 try {
-                    
+
                     const response = processQRValidation(idMatch);
                     handleResponse(response);
 
@@ -540,7 +557,7 @@ $(document).ready(function () {
         {
             highlightScanRegion: true, // Highlight the scan region
             highlightCodeOutline: true, // Highlight detected QR code outline
-            maxScansPerSecond: 5, // Limit scans to 5 per second to save battery life
+            maxScansPerSecond: 3, // Limit scans to 5 per second to save battery life
             // scanRegion: {
             //     x: 0,
             //     y: 0,
@@ -654,10 +671,18 @@ $(document).ready(function () {
         }
     );
 
-    // LLama mergeLocalStorageWithDatabase cada segundo
-    setInterval(mergeLocalStorageWithDatabase, 1000);
+    // LLama mergeLocalStorageWithDatabase cada 10 segundos, se puede tocar para casos de conexión muy irregular
+    setInterval(mergeLocalStorageWithDatabase, 10000);
 
-    $(document).on('click', '#refresh-button', function () {
+    // before unload event
+
+    $(document).on('click', '#refresh-button', async function () {
+        try {
+            await uploadAndRefreshLocalDb();
+        } catch (error) {
+            console.error("Error sending local storage data:", error);
+            throw new Error("Failed to send local storage data.");
+        }
         location.reload();
     })
 

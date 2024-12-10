@@ -51,7 +51,7 @@ const errorsLogger = (err, req, res, next) => {
             statuscode: `${res.statusCode}`,
             method: req.method,
             endpoint: req.originalUrl,
-            payload: JSON.stringify(req.body || {}),//TODO 
+            payload: JSON.stringify(req.body || {}),
             error: err.message
         }
         // debug(objectO);
