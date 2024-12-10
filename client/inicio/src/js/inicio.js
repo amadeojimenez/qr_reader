@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    const debugging = 'desktop'; // mobile, desktop, both, false
+    const debugging = 'false'; // mobile, desktop, both, false
+    const localdatabasename = 'talentday-qr-reader' //"LocalStorageDatabase2" //"LocalStorageDatabase" ;
     const audioValidated = new Audio('../sounds/valid.mp3');
     const audioUnvalidated = new Audio('../sounds/unvalid.mp3');
     const audioSignWaiver = new Audio('../sounds/sign_waiver.mp3');
@@ -16,6 +17,7 @@ $(document).ready(function () {
     const headerSection = document.getElementById('header-section');
     const sleepIcon = document.getElementById('sleep-icon');
     const cookieName = 'talentday-qr-reader';
+    const desperateMode = false; 
     // write to 1000 entries in the allowedhashes object with numbers from 1 to 1000 and value true for all of them
     // const allowedhashes = { ...Array.from({ length: 1000 }, (_, i) => [i + 1, true]) };
     const colors = {
@@ -180,6 +182,9 @@ $(document).ready(function () {
         // extraButton.style.display = 'flex'; 
 
         document.body.classList.add('sleep-mode');
+        // stop retrieving data from the server
+
+
 
         qrScanner.stop();
     }
@@ -238,6 +243,9 @@ $(document).ready(function () {
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(data),
+            headers: {
+                'X-Device-ID': idDevice
+            },
             success: function (response) {
                 log(response)
                 return response;
@@ -251,9 +259,9 @@ $(document).ready(function () {
 
     function saveInLocalStorage(id, uniqueHash, inOrOut) {
 
-        const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+        const LocalStorageDatabase = JSON.parse(localStorage.getItem(localdatabasename)) || [];
         LocalStorageDatabase.push({ id, inOrOut, uniqueHash, idDevice });
-        localStorage.setItem("LocalStorageDatabase", JSON.stringify(LocalStorageDatabase));
+        localStorage.setItem(localdatabasename, JSON.stringify(LocalStorageDatabase));
     }
 
 
@@ -263,7 +271,7 @@ $(document).ready(function () {
         if (LocalStorageDatabaseSent) return;
         LocalStorageDatabaseSent = true; //para prevenir que se reenvie varias veces la misma req al detectar reconexion
 
-        const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+        const LocalStorageDatabase = JSON.parse(localStorage.getItem(localdatabasename)) || [];
 
         log("Probando el envío de datos guardados en local...");
         const onlyThisDeviceData = LocalStorageDatabase.filter(record => record.idDevice === idDevice || !record.idDevice);
@@ -272,17 +280,18 @@ $(document).ready(function () {
                 url: "/qrReader/sendLocalStorageToDB",
                 type: "POST",
                 contentType: "application/json",
+                headers: {'X-Device-ID': idDevice},                
                 data: JSON.stringify(onlyThisDeviceData),
             });
             log("Datos enviados correctamente:", response);
             // Retrieve the existing local storage data
-            const localStorageData = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+            const localStorageData = JSON.parse(localStorage.getItem(localdatabasename)) || [];
 
             // Merge the server response with the local storage data
             const mergedData = mergeDatabases(localStorageData, response);
 
             // Save the merged data back to local storage
-            localStorage.setItem("LocalStorageDatabase", JSON.stringify(mergedData));
+            localStorage.setItem(localdatabasename, JSON.stringify(mergedData));
             log("Local storage updated.");
 
         } catch (error) {
@@ -299,6 +308,7 @@ $(document).ready(function () {
             const response = await $.ajax({
                 url: "/qrReader/getDatabase",
                 type: "GET",
+                headers: {'X-Device-ID': idDevice}, 
                 dataType: "json",
             });
 
@@ -307,13 +317,13 @@ $(document).ready(function () {
             // we merge the local storage with the response from the server
 
             // Retrieve the existing local storage data
-            const localStorageData = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+            const localStorageData = JSON.parse(localStorage.getItem(localdatabasename)) || [];
 
             // Merge the server response with the local storage data
             const mergedData = mergeDatabases(localStorageData, response);
 
             // Save the merged data back to local storage
-            localStorage.setItem("LocalStorageDatabase", JSON.stringify(mergedData));
+            localStorage.setItem(localdatabasename, JSON.stringify(mergedData));
             log("Local storage updated.");
 
         } catch (error) {
@@ -401,9 +411,12 @@ $(document).ready(function () {
                     blockScanner('No consta que hubiera entrado, leer de entrada', 'rgba(255, 0, 0, 0.5)');
                     audioUnvalidated.play()
                     break;
-
+                case 'ok':
+                    blockScanner('¡Hasta la próxima!', 'rgba(0, 0, 255, 0.5)');
+                    audioValidated.play();
+                    break;
                 default:
-                    statusElement.textContent = 'Error procesando QR!';
+                    blockScanner('Error procesando QR!', 'rgba(255, 0, 200, 0.5)');
                     break;
             }
 
@@ -460,7 +473,7 @@ $(document).ready(function () {
         const miliseconds = new Date().getTime();
         const uniqueHash = miliseconds + '---' + idDevice;
 
-        const LocalStorageDatabase = JSON.parse(localStorage.getItem("LocalStorageDatabase")) || [];
+        const LocalStorageDatabase = JSON.parse(localStorage.getItem(localdatabasename)) || [];
 
         // Find the last record for the id
         const lastUserRecord = LocalStorageDatabase.slice().reverse().find(record => record.id === idUser);
@@ -497,12 +510,39 @@ $(document).ready(function () {
             }
         }
     }
+    function desperateModeQRValidation(idUser) {
+        // Retrieve localStorage database
+
+        const miliseconds = new Date().getTime();
+        const uniqueHash = miliseconds + '---' + idDevice;
+
+
+        // Find the last record for the id
+        try {
+            sendToDB(idUser, uniqueHash);
+            if (checkIfMustSign(idUser)) { //no user record and has to sign=> check for sign
+                return { message: 'must_sign', id: idUser, hash: uniqueHash };
+            } else {
+                return { message: 'ok' };
+            }
+            
+        } catch (error) {
+            console.error("Error sending data to server:", error);
+        }
+        
+    }
+
+    if (desperateMode) {
+        alert('Modo emergencia activado');
+        processQRValidation = desperateModeQRValidation;
+    }
 
     function flushLocalStorage() {
-        localStorage.removeItem("LocalStorageDatabase");
+        localStorage.removeItem('LocalStorageDatabase');
+        getDataFromServer();
         console.log("Local storage flushed.");
     }
-    flushLocalStorage(); //TODO     !!
+    flushLocalStorage(); //TODO   para borrar las usadas en pruebas  !!
 
 
 

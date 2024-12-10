@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const debug = require('debug')('&:INDEX JS');
 const jwtHelpers = require('./middleware/jwt.js');
 const { privateLogger, errorsLogger } = require('./middleware/logger.js');
+const {extractDeviceId} = require('./middleware/deviceid.js');
 const favicon = require('serve-favicon');
 // const cors = require('cors');
 // const helmet = require('helmet'); //TODO: Implementar helmet
@@ -24,7 +25,7 @@ globalRouter.use(cookieParser());
 globalRouter.use(favicon(path.join(__dirname, '../client/inicio/src/img', 'favicon.ico')))
 globalRouter.use(express.static('../client/inicio/src'));
 
-
+globalRouter.use(extractDeviceId);
 globalRouter.use(privateLogger)
 
 
